@@ -26,6 +26,9 @@ public class User implements UserDetails {
   @NotEmpty
   @Column(nullable = false, unique = true)
   private String email;
+
+  @NotNull
+  @NotEmpty
   private String password;
   private boolean enabled;
   private boolean blocked;
