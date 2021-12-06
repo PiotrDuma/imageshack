@@ -1,5 +1,7 @@
 package com.github.PiotrDuma.imageshack.AppUser;
 
+import com.github.PiotrDuma.imageshack.security.model.Role;
+import java.util.ArrayList;
 import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,6 +34,7 @@ public class User implements UserDetails {
   private String password;
   private boolean enabled;
   private boolean blocked;
+  private Collection<Role> roles = new ArrayList<>();
 
   public User() {
   }
@@ -46,7 +49,11 @@ public class User implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return null; //TODO
+    return roles; //TODO
+  }
+
+  public void setRoles(Collection<Role> roles){
+    this.roles = roles;
   }
 
   @Override
