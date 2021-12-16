@@ -1,28 +1,47 @@
 package com.github.PiotrDuma.imageshack.security.model;
 
+import java.util.Collection;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
+@Table(name = "operations")
 public class Operation implements GrantedAuthority {
 
   @Id
+  @Column(name = "operation_id")
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+
+  @Column(name = "operation_type", unique = true)
   @Enumerated(EnumType.STRING)
-  private Enum<AppOperationType> id;
+  private AppOperationType operationType;
+
+  @ManyToMany(mappedBy = "allowedOperations")
+  private Collection<Role> roles;
 
   public Operation() {
   }
 
-  public Operation(AppOperationType id) {
-    this.id = id;
+  public Operation(AppOperationType operationType) {
+    this.operationType = operationType;
+  }
+
+  public Long getId() {
+    return id;
   }
 
   @Override
   public String getAuthority() {
-    return id.name();
+    return operationType.name();
   }
 
 }

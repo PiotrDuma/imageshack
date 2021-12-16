@@ -1,6 +1,6 @@
 package com.github.PiotrDuma.imageshack.security.model;
 
-import org.springframework.security.core.GrantedAuthority;
+import java.util.stream.Stream;
 
 public enum AppOperationType { //TODO add new privileges
   DELETE("OP_DELETE"),
@@ -16,5 +16,7 @@ public enum AppOperationType { //TODO add new privileges
     return operation;
   }
 
-
+  public static Stream<AppOperationType> stream(){
+    return Stream.of(AppOperationType.values());
+  }
 }
