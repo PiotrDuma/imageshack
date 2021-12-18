@@ -29,28 +29,54 @@ public class SecurityRoleSetup {
     this.appRoleRepo = appRoleRepo;
   }
 
-  //TODO: manage roles and privileges
   @Transactional
   @EventListener(ApplicationReadyEvent.class)
   public void onApplicationEvent() {
-
     AppOperationType.stream().forEach(this::createOperation);
 
-    Set<Operation> ownerAllowedOperations = Stream.of(AppOperationType.DELETE,
-        AppOperationType.EDIT)
+    Set<Operation> ownerAllowedOperations = Stream.of(
+            AppOperationType.CREATE,
+            AppOperationType.READ,
+            AppOperationType.EDIT,
+            AppOperationType.DELETE,
+            AppOperationType.MODERATE,
+            AppOperationType.ADMINISTRATE,
+            AppOperationType.MANAGE
+        )
         .map(this::createOperation)
         .collect(Collectors.toSet());
 
-    Set<Operation> adminAllowedOperations = Stream.of(AppOperationType.DELETE)
+    Set<Operation> adminAllowedOperations = Stream.of(
+            AppOperationType.CREATE,
+            AppOperationType.READ,
+            AppOperationType.EDIT,
+            AppOperationType.DELETE,
+            AppOperationType.MODERATE,
+            AppOperationType.ADMINISTRATE)
+        .map(this::createOperation)
+        .collect(Collectors.toSet());
+
+    Set<Operation> moderatorAllowedOperations = Stream.of(
+            AppOperationType.CREATE,
+            AppOperationType.READ,
+            AppOperationType.EDIT,
+            AppOperationType.DELETE,
+            AppOperationType.MODERATE)
+        .map(this::createOperation)
+        .collect(Collectors.toSet());
+
+    Set<Operation> userAllowedOperations = Stream.of(
+            AppOperationType.CREATE,
+            AppOperationType.READ,
+            AppOperationType.EDIT,
+            AppOperationType.DELETE)
         .map(this::createOperation)
         .collect(Collectors.toSet());
 
     createRole(AppRoleType.OWNER, ownerAllowedOperations);
-
-    //TODO: manage roles and privileges
     createRole(AppRoleType.ADMIN, adminAllowedOperations);
-    createRole(AppRoleType.MODERATOR, null);
-    createRole(AppRoleType.USER, null);
+    createRole(AppRoleType.MODERATOR, moderatorAllowedOperations);
+    createRole(AppRoleType.USER, userAllowedOperations);
   }
 
   @Transactional
@@ -70,5 +96,4 @@ public class SecurityRoleSetup {
     }
     return role.get();
   }
-
 }

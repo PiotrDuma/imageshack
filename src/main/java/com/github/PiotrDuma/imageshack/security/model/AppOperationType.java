@@ -2,9 +2,15 @@ package com.github.PiotrDuma.imageshack.security.model;
 
 import java.util.stream.Stream;
 
-public enum AppOperationType { //TODO add new privileges
+public enum AppOperationType {
+  CREATE("OP_CREATE"),
+  READ("OP_READ"),
+  EDIT("OP_EDIT"),
   DELETE("OP_DELETE"),
-  EDIT("OP_EDIT");
+  MODERATE("OP_MODERATE"),
+  ADMINISTRATE("OP_ADMINISTRATE"),
+  MANAGE("OP_MANAGE");
+
 
   private final String operation;
 
