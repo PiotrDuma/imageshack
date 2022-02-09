@@ -1,5 +1,6 @@
 package com.github.PiotrDuma.imageshack.security;
 
+import com.github.PiotrDuma.imageshack.security.config.SystemSecurityUserProvider.SystemSecurityUserProvider;
 import com.github.PiotrDuma.imageshack.security.model.AppOperationRepo;
 import com.github.PiotrDuma.imageshack.security.model.AppOperationType;
 import com.github.PiotrDuma.imageshack.security.model.AppRoleRepo;
@@ -21,12 +22,14 @@ public class SecurityRoleSetup {
 
   private final AppOperationRepo appOperationRepo;
   private final AppRoleRepo appRoleRepo;
+  private final SystemSecurityUserProvider systemSecurityUserProvider;
 
   @Autowired
   public SecurityRoleSetup(AppOperationRepo appOperationRepo,
-      AppRoleRepo appRoleRepo) {
+      AppRoleRepo appRoleRepo, SystemSecurityUserProvider systemSecurityUserProvider) {
     this.appOperationRepo = appOperationRepo;
     this.appRoleRepo = appRoleRepo;
+    this.systemSecurityUserProvider = systemSecurityUserProvider;
   }
 
   @Transactional
@@ -34,33 +37,17 @@ public class SecurityRoleSetup {
   public void onApplicationEvent() {
     AppOperationType.stream().forEach(this::createOperation);
 
-    Set<Operation> ownerAllowedOperations = Stream.of(
-            AppOperationType.CREATE,
-            AppOperationType.READ,
-            AppOperationType.EDIT,
-            AppOperationType.DELETE,
-            AppOperationType.MODERATE,
-            AppOperationType.ADMINISTRATE,
-            AppOperationType.MANAGE
+    Set<Operation> ownerAllowedOperations = Stream.of(AppOperationType.MANAGE
         )
         .map(this::createOperation)
         .collect(Collectors.toSet());
 
     Set<Operation> adminAllowedOperations = Stream.of(
-            AppOperationType.CREATE,
-            AppOperationType.READ,
-            AppOperationType.EDIT,
-            AppOperationType.DELETE,
-            AppOperationType.MODERATE,
             AppOperationType.ADMINISTRATE)
         .map(this::createOperation)
         .collect(Collectors.toSet());
 
     Set<Operation> moderatorAllowedOperations = Stream.of(
-            AppOperationType.CREATE,
-            AppOperationType.READ,
-            AppOperationType.EDIT,
-            AppOperationType.DELETE,
             AppOperationType.MODERATE)
         .map(this::createOperation)
         .collect(Collectors.toSet());
@@ -77,6 +64,9 @@ public class SecurityRoleSetup {
     createRole(AppRoleType.ADMIN, adminAllowedOperations);
     createRole(AppRoleType.MODERATOR, moderatorAllowedOperations);
     createRole(AppRoleType.USER, userAllowedOperations);
+
+    //initialize system user's accounts
+  systemSecurityUserProvider.generateSystemUsers();
   }
 
   @Transactional
