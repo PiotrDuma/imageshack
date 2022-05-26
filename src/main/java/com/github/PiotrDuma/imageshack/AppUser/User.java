@@ -31,7 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable { //TODO: custom implementation of database tables.
+public class User implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,17 +44,18 @@ public class User implements Serializable { //TODO: custom implementation of dat
 
   @NotNull
   @NotEmpty
-  @Column(nullable = false, unique = true)
+  @Column(name = "username" ,nullable = false, unique = true)
   private String username;
 
   @Email
   @NotNull
   @NotEmpty
-  @Column(nullable = false, unique = true)
+  @Column(name = "email", nullable = false, unique = true)
   private String email;
 
   @NotNull
   @NotEmpty
+  @Column(name = "password", nullable = false) //TODO: requirements, password strength
   private String password;
 
   @ManyToMany(fetch = FetchType.EAGER) //TODO: https://stackoverflow.com/posts/37659432/revisions

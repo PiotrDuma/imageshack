@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset PiotrDuma:1_create_role_table
+--changeset PiotrDuma:001-create_role_table
 
 CREATE TABLE roles(
    role_id int,
