@@ -1,6 +1,9 @@
 package com.github.PiotrDuma.imageshack.AppUser;
 
+import com.github.PiotrDuma.imageshack.AppUser.UserDetails.CustomUserDetails;
+import com.github.PiotrDuma.imageshack.security.model.AppRoleType;
 import com.github.PiotrDuma.imageshack.security.model.Role;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,6 +21,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -27,13 +31,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements Serializable { //TODO: custom implementation of database tables.
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
   private Long Id;
 
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  @JoinColumn(name = "details_id", referencedColumnName = "user_id")
+  private CustomUserDetails customUserDetails;
+
+  @NotNull
+  @NotEmpty
+  @Column(nullable = false, unique = true)
   private String username;
 
   @Email
@@ -45,8 +56,6 @@ public class User implements UserDetails {
   @NotNull
   @NotEmpty
   private String password;
-  private boolean enabled;
-  private boolean blocked;
 
   @ManyToMany(fetch = FetchType.EAGER) //TODO: https://stackoverflow.com/posts/37659432/revisions
   @JoinTable(
@@ -57,66 +66,13 @@ public class User implements UserDetails {
           name = "role_id", referencedColumnName = "role_id"))
   private Collection<Role> roles = new HashSet<>();
 
-  public User() {
+  protected User() {
   }
 
-  public User(String name, String email, String password, boolean enabled, boolean blocked) {
-    this.username = name;
+  protected User(String username, String email, String password) {
+    this.username = username;
     this.email = email;
     this.password = password;
-    this.enabled = enabled;
-    this.blocked = blocked;
-  }
-
-  @Override
-  public Collection<Role> getAuthorities() {
-    return roles; //TODO
-  }
-
-  public void setRoles(Collection<Role> roles){
-    this.roles = roles;
-  }
-
-  @Override
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  @Override
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String name) {
-    this.username = name;
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return !blocked;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
   }
 
   public Long getId() {
@@ -127,6 +83,14 @@ public class User implements UserDetails {
     this.Id = id;
   }
 
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String name) {
+    this.username = name;
+  }
+
   public String getEmail() {
     return email;
   }
@@ -135,7 +99,28 @@ public class User implements UserDetails {
     this.email = email;
   }
 
-  public void setBlocked(boolean blocked) {
-    this.blocked = blocked;
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public Collection<Role> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(Collection<Role> roles) {
+    this.roles = roles;
+  }
+
+  public CustomUserDetails getCustomUserDetails() {
+    return customUserDetails;
+  }
+
+  public void setCustomUserDetails(
+      CustomUserDetails customUserDetails) {
+    this.customUserDetails = customUserDetails;
   }
 }

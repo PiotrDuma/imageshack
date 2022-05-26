@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
+
   private final static String LOGIN_URL = "/login";
   private final static String LOGOUT_URL = "/logout";
   private final PasswordEncoder passwordEncoder;
@@ -35,18 +36,19 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
         .anyRequest().authenticated()
         .and()
-        .formLogin();
-//        .formLogin()
-//          .loginPage(LOGIN_URL)
-//          .defaultSuccessUrl("/", true)
-//          .failureUrl("/login?error=true")
-//          .permitAll()
-//        .and()
-//        .logout()
-//          .logoutUrl(LOGOUT_URL)
-//          .logoutSuccessUrl("/")
-//          .deleteCookies("JSESSIONID", "JWT").invalidateHttpSession(true)
-//          .permitAll();
+          .formLogin()
+          .loginPage(LOGIN_URL)
+          .defaultSuccessUrl("/", true)
+          .failureUrl("/login?error=true")
+          .permitAll()
+        .and()
+          .logout()
+          .logoutUrl(LOGOUT_URL)
+          .logoutSuccessUrl("/")
+          .clearAuthentication(true)
+          .invalidateHttpSession(true)
+          .deleteCookies("JSESSIONID", "JWT").invalidateHttpSession(true)
+          .permitAll();
   }
 
 
@@ -56,7 +58,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public DaoAuthenticationProvider userDetailsServiceProvider(){
+  public DaoAuthenticationProvider userDetailsServiceProvider() {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
     provider.setPasswordEncoder(passwordEncoder);
     provider.setUserDetailsService(userDetailsService());

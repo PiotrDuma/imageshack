@@ -1,5 +1,8 @@
-package com.github.PiotrDuma.imageshack.AppUser;
+package com.github.PiotrDuma.imageshack.AppUser.UserDetails;
 
+import com.github.PiotrDuma.imageshack.AppUser.User;
+import com.github.PiotrDuma.imageshack.AppUser.UserDetailsWrapper;
+import com.github.PiotrDuma.imageshack.AppUser.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,8 +21,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    return userRepository.findByEmail(email)
+    User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new UsernameNotFoundException(String.format(NOT_FOUND, email)));
+    return new UserDetailsWrapper(user);
   }
 
 

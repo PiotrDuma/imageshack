@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: changeSet/001-create_role_table.sql
+      relativeToChangelogFile: true
