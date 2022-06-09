@@ -39,6 +39,10 @@ public class UserDetailsWrapper implements UserDetails {
     return this.user;
   }
 
+  public CustomUserDetails getCustomUserDetails(){
+    return this.customUserDetails;
+  }
+
   @Override
   public String getPassword() {
     return user.getPassword();
@@ -100,6 +104,8 @@ public class UserDetailsWrapper implements UserDetails {
     public Builder(String username, String email, String password){
       this.user = new User(username, email, password);
       this.customUserDetails = new CustomUserDetails(true, true,true, true);
+      this.customUserDetails.setUser(user);
+      this.user.setCustomUserDetails(this.customUserDetails);
     }
 
     public Builder accountNonExpired(boolean accountNonExpired) {

@@ -38,8 +38,8 @@ public class User implements Serializable {
   @Column(name = "user_id")
   private Long Id;
 
-  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-  @JoinColumn(name = "details_id", referencedColumnName = "user_id")
+//  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   private CustomUserDetails customUserDetails;
 
   @NotNull

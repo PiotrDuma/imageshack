@@ -4,11 +4,7 @@ import com.github.PiotrDuma.imageshack.AppUser.User;
 import com.github.PiotrDuma.imageshack.AppUser.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.AppUser.UserRepository;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
-import com.github.PiotrDuma.imageshack.security.model.AppRoleRepo;
 import com.github.PiotrDuma.imageshack.security.model.AppRoleType;
-import com.github.PiotrDuma.imageshack.security.model.Role;
-import java.util.Collection;
-import javax.swing.JPasswordField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,21 +23,21 @@ public class SystemSecurityDevUsersImpl implements SystemSecurityUserProvider {
          PasswordEncoder passwordEncoder) {
     this.repo = repo;
     this.userService = userService;
-//    this.roleRepo = roleRepo;
     this.passwordEncoder = passwordEncoder;
   }
 
   @Override
   public void generateSystemUsers() {
 
-    //TODO:temporary turn off
-
+    if (repo.findByEmail("owner@imageshack.com").isEmpty()) {
+      System.out.println("START CREATING SYSTEM OWNER");
       UserDetailsWrapper owner = userService.createNewUser("owner",
-          "owner@imageshack.com","passwd");
-      userService.addRole(owner.getUser(), AppRoleType.OWNER);
+          "owner@imageshack.com", "passwd");
+    }else{
+      User owner = repo.findByEmail("owner@imageshack.com").get();
+      userService.addRole(owner, AppRoleType.MODERATOR);
 
-    if (repo.findByEmail(owner.getUser().getEmail()).isEmpty()) {
-      repo.save(owner.getUser());
+//      repo.save(owner.getUser());
 
 //    User owner = new User("owner", "owner@imageshack.com", passwordEncoder.encode("passwd"));
 //    Collection<Role> authorities = owner.getAuthorities();

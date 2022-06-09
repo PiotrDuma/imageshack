@@ -1,5 +1,7 @@
 package com.github.PiotrDuma.imageshack.AppUser;
 
+import com.github.PiotrDuma.imageshack.AppUser.UserDetails.CustomUserDetails;
+import com.github.PiotrDuma.imageshack.AppUser.UserDetails.UserDetailsRepository;
 import com.github.PiotrDuma.imageshack.security.model.AppRoleRepo;
 import com.github.PiotrDuma.imageshack.security.model.AppRoleType;
 import com.github.PiotrDuma.imageshack.security.model.Role;
@@ -25,14 +27,12 @@ public class UserServiceImpl implements UserService {
   public void addRole(User user, AppRoleType role) {
     Collection<Role> roles = user.getRoles();
     roles.add(appRoleRepo.findRoleByRoleType(role).get());
-    userRepo.save(user);
   }
 
   @Override
   public void removeRole(User user, AppRoleType role) {
     Collection<Role> roles = user.getRoles();
     roles.remove(appRoleRepo.findRoleByRoleType(role).get());
-    userRepo.save(user);
   }
 
   @Override
@@ -40,6 +40,15 @@ public class UserServiceImpl implements UserService {
     UserDetailsWrapper userDetailsWrapper = new UserDetailsWrapper.Builder(username,email,password)
         .build();
     addRole(userDetailsWrapper.getUser(), AppRoleType.USER);
+
+    System.out.println(userDetailsWrapper.getCustomUserDetails().isEnabled());
+    User user = userDetailsWrapper.getUser();
+    CustomUserDetails details = userDetailsWrapper.getCustomUserDetails();
+
+    user.setCustomUserDetails(details);
+    details.setUser(user);
+
+    userRepo.save(userDetailsWrapper.getUser());
     return userDetailsWrapper;
   }
 }
