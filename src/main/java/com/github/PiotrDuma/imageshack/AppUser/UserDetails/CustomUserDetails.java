@@ -89,4 +89,15 @@ public class CustomUserDetails implements Serializable {
   public void setUser(User user) {
     this.user = user;
   }
+
+  @Override
+  public String toString() {
+    return "CustomUserDetails{" +
+        "  user=" + user +
+        ", accountNonExpired=" + accountNonExpired +
+        ", accountNonLocked=" + accountNonLocked +
+        ", credentialsNonExpired=" + credentialsNonExpired +
+        ", enabled=" + enabled +
+        '}';
+  }
 }

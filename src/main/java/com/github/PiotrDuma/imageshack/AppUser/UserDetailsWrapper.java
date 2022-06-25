@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.AppUser;
 
 import com.github.PiotrDuma.imageshack.AppUser.UserDetails.CustomUserDetails;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,8 +12,6 @@ public class UserDetailsWrapper implements UserDetails {
   private User user;
   private CustomUserDetails customUserDetails;
 
-
-  //TODO create constructor with user parameter and load details
   public UserDetailsWrapper(User user) {
     this.user = user;
     this.customUserDetails = user.getCustomUserDetails();
@@ -32,7 +31,12 @@ public class UserDetailsWrapper implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return user.getRoles();
+    Collection<GrantedAuthority> authorities =
+        user.getRoles().stream().flatMap(role -> role.getAllowedOperations().stream()).collect(Collectors.toSet());
+
+    user.getRoles().stream()
+        .forEach(r -> authorities.add(r));
+    return authorities;
   }
 
   public User getUser(){
@@ -125,8 +129,7 @@ public class UserDetailsWrapper implements UserDetails {
       return this;
     }
     public UserDetailsWrapper build(){
-      UserDetailsWrapper userDetailsWrapper = new UserDetailsWrapper(this);
-      return userDetailsWrapper;
+      return new UserDetailsWrapper(this);
     }
   }
 }

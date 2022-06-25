@@ -38,7 +38,6 @@ public class User implements Serializable {
   @Column(name = "user_id")
   private Long Id;
 
-//  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   private CustomUserDetails customUserDetails;
 
@@ -65,7 +64,7 @@ public class User implements Serializable {
           name = "user_id", referencedColumnName = "user_id"),
       inverseJoinColumns = @JoinColumn(
           name = "role_id", referencedColumnName = "role_id"))
-  private Collection<Role> roles = new HashSet<>();
+  private Set<Role> roles = new HashSet<>();
 
   protected User() {
   }
@@ -108,11 +107,11 @@ public class User implements Serializable {
     this.password = password;
   }
 
-  public Collection<Role> getRoles() {
+  public Set<Role> getRoles() {
     return roles;
   }
 
-  public void setRoles(Collection<Role> roles) {
+  public void setRoles(Set<Role> roles) {
     this.roles = roles;
   }
 
@@ -123,5 +122,16 @@ public class User implements Serializable {
   public void setCustomUserDetails(
       CustomUserDetails customUserDetails) {
     this.customUserDetails = customUserDetails;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+        "Id=" + Id +
+        ", username='" + username + '\'' +
+        ", email='" + email + '\'' +
+        ", password='" + password + '\'' +
+        ", roles=" + roles +
+        '}';
   }
 }

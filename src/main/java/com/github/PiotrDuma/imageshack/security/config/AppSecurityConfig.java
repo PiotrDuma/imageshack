@@ -33,13 +33,16 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     http
         .csrf().disable()
         .authorizeRequests()
-        .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
+        .antMatchers("/", "index", "/static/**", "/js/**", "/css/**",
+                        "/img/**", "/json/**").permitAll()
+        .antMatchers("/api/securitytest").permitAll()
         .anyRequest().authenticated()
         .and()
-          .formLogin()
+        .formLogin()
           .loginPage(LOGIN_URL)
-          .defaultSuccessUrl("/", true)
-          .failureUrl("/login?error=true")
+//          .loginProcessingUrl(LOGIN_URL)
+          .defaultSuccessUrl("/api/securitytest/test", true)
+//          .failureUrl("/login?error=true")
           .permitAll()
         .and()
           .logout()
@@ -54,14 +57,15 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsService);
+//    auth.userDetailsService(userDetailsService);
+    auth.authenticationProvider(userDetailsServiceProvider());
   }
 
   @Bean
   public DaoAuthenticationProvider userDetailsServiceProvider() {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
     provider.setPasswordEncoder(passwordEncoder);
-    provider.setUserDetailsService(userDetailsService());
+    provider.setUserDetailsService(userDetailsService);
     return provider;
   }
 }

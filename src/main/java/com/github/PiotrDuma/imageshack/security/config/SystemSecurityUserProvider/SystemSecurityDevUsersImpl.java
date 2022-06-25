@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Qualifier("AllRoles")
+@Qualifier("CreateOwner")
 public class SystemSecurityDevUsersImpl implements SystemSecurityUserProvider {
 
   private final UserRepository repo;
@@ -32,20 +32,8 @@ public class SystemSecurityDevUsersImpl implements SystemSecurityUserProvider {
     if (repo.findByEmail("owner@imageshack.com").isEmpty()) {
       System.out.println("START CREATING SYSTEM OWNER");
       UserDetailsWrapper owner = userService.createNewUser("owner",
-          "owner@imageshack.com", "passwd");
-    }else{
-      User owner = repo.findByEmail("owner@imageshack.com").get();
-      userService.addRole(owner, AppRoleType.MODERATOR);
-
-//      repo.save(owner.getUser());
-
-//    User owner = new User("owner", "owner@imageshack.com", passwordEncoder.encode("passwd"));
-//    Collection<Role> authorities = owner.getAuthorities();
-//    authorities.add(roleRepo.findRoleByRoleType(AppRoleType.OWNER).get());
-//    owner.setRoles(authorities);
-//
-//    if (repo.findByEmail(owner.getEmail()).isEmpty()) {
-//      repo.save(owner);
+          "owner@imageshack.com", passwordEncoder.encode("passwd"));
+      userService.addRole(owner.getUser(), AppRoleType.OWNER);
     }
   }
 }

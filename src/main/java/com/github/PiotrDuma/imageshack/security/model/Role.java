@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,7 +33,7 @@ public class Role implements GrantedAuthority {
   @ManyToMany(mappedBy = "roles")
   private Collection<User> users;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "roles_operations",
       joinColumns = @JoinColumn(
@@ -55,7 +56,7 @@ public class Role implements GrantedAuthority {
 
   @Override
   public String getAuthority() {
-    return roleType.name();
+    return roleType.getRole();
   }
 
   public Set<Operation> getAllowedOperations() {
@@ -64,5 +65,10 @@ public class Role implements GrantedAuthority {
 
   public void setAllowedOperations(Set<Operation> allowedOperations) {
     this.allowedOperations = allowedOperations;
+  }
+
+  @Override
+  public String toString() {
+    return roleType.name();
   }
 }
