@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDetailsWrapper createNewUser(String username, String email, String password) {
+  public UserDetailsWrapper createNewUser(String email, String username, String password) {
     UserDetailsWrapper userDetailsWrapper = new UserDetailsWrapper.Builder(username,email,password)
         .build();
     addRole(userDetailsWrapper.getUser(), AppRoleType.USER);

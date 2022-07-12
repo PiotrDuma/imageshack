@@ -105,7 +105,7 @@ public class UserDetailsWrapper implements UserDetails {
     private User user;
     private CustomUserDetails customUserDetails;
 
-    public Builder(String username, String email, String password){
+    public Builder(String email, String username, String password){
       this.user = new User(username, email, password);
       this.customUserDetails = new CustomUserDetails(true, true,true, true);
       this.customUserDetails.setUser(user);
