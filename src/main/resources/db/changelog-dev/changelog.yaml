@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - include:
+      file: changeSet/001-create_role_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changeSet/002-create_operation_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changeSet/003-create_roles_operations_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changeSet/004-create_users_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changeSet/005-create_user_details_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changeSet/006-create_users_roles_table.sql
+      relativeToChangelogFile: true
