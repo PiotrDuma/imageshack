@@ -32,16 +32,16 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     http
         .csrf().disable()
+        .headers().frameOptions().disable().and() //required for H2 database.
         .authorizeRequests()
         .antMatchers("/", "index", "/static/**", "/js/**", "/css/**",
                         "/img/**", "/json/**").permitAll()
-        .antMatchers("/api/securitytest").permitAll()
+        .antMatchers("/api/securitytest/**").permitAll()
         .anyRequest().authenticated()
         .and()
         .formLogin()
           .loginPage(LOGIN_URL)
-//          .loginProcessingUrl(LOGIN_URL)
-          .defaultSuccessUrl("/api/securitytest/test", true)
+          .defaultSuccessUrl("/api/securitytest/info", true)
 //          .failureUrl("/login?error=true")
           .permitAll()
         .and()
@@ -57,7 +57,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//    auth.userDetailsService(userDetailsService);
     auth.authenticationProvider(userDetailsServiceProvider());
   }
 

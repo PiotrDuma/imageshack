@@ -2,8 +2,6 @@ package com.github.PiotrDuma.imageshack.security.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Array;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class AppOperationTypeTest {
