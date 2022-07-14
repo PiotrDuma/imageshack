@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-@Qualifier("registrationService") //TODO: encapsulate service to private class
-public class RegistrationServiceImpl implements RegistrationService {
+@Qualifier("registrationService")
+class RegistrationServiceImpl implements RegistrationService {
   private final UserService userService;
 
   @Autowired
