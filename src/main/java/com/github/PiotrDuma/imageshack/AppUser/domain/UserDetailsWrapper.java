@@ -1,6 +1,5 @@
-package com.github.PiotrDuma.imageshack.AppUser;
+package com.github.PiotrDuma.imageshack.AppUser.domain;
 
-import com.github.PiotrDuma.imageshack.AppUser.UserDetails.CustomUserDetails;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,11 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 public class UserDetailsWrapper implements UserDetails {
-
   private User user;
   private CustomUserDetails customUserDetails;
 
-  public UserDetailsWrapper(User user) {
+  protected UserDetailsWrapper(User user) {
     this.user = user;
     this.customUserDetails = user.getCustomUserDetails();
   }
@@ -38,12 +36,15 @@ public class UserDetailsWrapper implements UserDetails {
         .forEach(r -> authorities.add(r));
     return authorities;
   }
+  public Long getUserId(){
+    return this.user.getUserId().getId();
+  }
 
-  public User getUser(){
+  protected User getUser(){
     return this.user;
   }
 
-  public CustomUserDetails getCustomUserDetails(){
+  protected CustomUserDetails getCustomUserDetails(){
     return this.customUserDetails;
   }
 
@@ -63,6 +64,14 @@ public class UserDetailsWrapper implements UserDetails {
 
   public void setUsername(String username) {
     user.setPassword(username);
+  }
+
+  void setUserEmail(String email){
+    this.user.setEmail(email);
+  }
+
+  String getEmail(){
+    return this.user.getEmail();
   }
 
   @Override
@@ -116,18 +125,22 @@ public class UserDetailsWrapper implements UserDetails {
       this.customUserDetails.setAccountNonExpired(accountNonExpired);
       return this;
     }
+
     public Builder accountNonLocked(boolean accountNonLocked) {
       this.customUserDetails.setAccountNonLocked(accountNonLocked);
       return this;
     }
+
     public Builder credentialsNonExpired(boolean credentialsNonExpired) {
       this.customUserDetails.setCredentialsNonExpired(credentialsNonExpired);
       return this;
     }
+
     public Builder enabled(boolean enabled) {
       this.customUserDetails.setEnabled(enabled);
       return this;
     }
+
     public UserDetailsWrapper build(){
       return new UserDetailsWrapper(this);
     }

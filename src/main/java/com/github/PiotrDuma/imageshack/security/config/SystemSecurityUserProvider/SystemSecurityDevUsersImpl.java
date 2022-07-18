@@ -1,9 +1,8 @@
 package com.github.PiotrDuma.imageshack.security.config.SystemSecurityUserProvider;
 
-import com.github.PiotrDuma.imageshack.AppUser.User;
 import com.github.PiotrDuma.imageshack.AppUser.UserDetailsWrapper;
-import com.github.PiotrDuma.imageshack.AppUser.UserRepository;
-import com.github.PiotrDuma.imageshack.AppUser.UserService;
+import com.github.PiotrDuma.imageshack.AppUser.api.UserRepository;
+import com.github.PiotrDuma.imageshack.AppUser.api.UserService;
 import com.github.PiotrDuma.imageshack.security.model.AppRoleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

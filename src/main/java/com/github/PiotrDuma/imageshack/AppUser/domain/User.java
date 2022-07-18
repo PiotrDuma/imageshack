@@ -1,42 +1,33 @@
-package com.github.PiotrDuma.imageshack.AppUser;
+package com.github.PiotrDuma.imageshack.AppUser.domain;
 
-import com.github.PiotrDuma.imageshack.AppUser.UserDetails.CustomUserDetails;
-import com.github.PiotrDuma.imageshack.security.model.AppRoleType;
 import com.github.PiotrDuma.imageshack.security.model.Role;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
+class User implements Serializable {
 
-  @Id
+  @EmbeddedId
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
-  private Long Id;
+  private UserId userId;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   private CustomUserDetails customUserDetails;
@@ -75,12 +66,12 @@ public class User implements Serializable {
     this.password = password;
   }
 
-  public Long getId() {
-    return Id;
+  public UserId getUserId() {
+    return userId;
   }
 
-  public void setId(Long id) {
-    this.Id = id;
+  public void setUserId(UserId userId) {
+    this.userId = userId;
   }
 
   public String getUsername() {
@@ -127,7 +118,7 @@ public class User implements Serializable {
   @Override
   public String toString() {
     return "User{" +
-        "Id=" + Id +
+        "Id=" + userId +
         ", username='" + username + '\'' +
         ", email='" + email + '\'' +
         ", password='" + password + '\'' +
