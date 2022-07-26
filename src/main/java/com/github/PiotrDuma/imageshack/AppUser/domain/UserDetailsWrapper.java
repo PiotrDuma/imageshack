@@ -5,12 +5,11 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 public class UserDetailsWrapper implements UserDetails {
   private User user;
   private CustomUserDetails customUserDetails;
 
-  protected UserDetailsWrapper(User user) {
+  public UserDetailsWrapper(User user) {
     this.user = user;
     this.customUserDetails = user.getCustomUserDetails();
   }
@@ -37,7 +36,7 @@ public class UserDetailsWrapper implements UserDetails {
     return authorities;
   }
   public Long getUserId(){
-    return this.user.getUserId().getId();
+    return this.user.getId();
   }
 
   protected User getUser(){

@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
+class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final static String LOGIN_URL = "/login";
   private final static String LOGOUT_URL = "/logout";

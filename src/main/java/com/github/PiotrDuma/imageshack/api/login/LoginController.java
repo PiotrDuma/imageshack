@@ -1,4 +1,4 @@
-package com.github.PiotrDuma.imageshack.api.login.api;
+package com.github.PiotrDuma.imageshack.api.login;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

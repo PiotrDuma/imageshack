@@ -1,6 +1,7 @@
-package com.github.PiotrDuma.imageshack.security.model;
+package com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity;
 
-import com.github.PiotrDuma.imageshack.AppUser.User;
+import com.github.PiotrDuma.imageshack.AppUser.domain.User;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 import javax.persistence.Column;
@@ -19,7 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Table(name = "roles")
-public class Role implements GrantedAuthority {
+public class Role implements GrantedAuthority, Serializable {
 
   @Id
   @Column(name = "role_id")
@@ -42,15 +43,15 @@ public class Role implements GrantedAuthority {
           name = "operation_id", referencedColumnName = "operation_id"))
   private Set<Operation> allowedOperations;
 
-  public Role() {
+  protected Role() {
   }
 
-  public Role(AppRoleType roleType, Set<Operation> allowedOperations) {
+  protected Role(AppRoleType roleType, Set<Operation> allowedOperations) {
     this.roleType = roleType;
     this.allowedOperations = allowedOperations;
   }
 
-  public Long getId() {
+  protected Long getId() {
     return id;
   }
 
@@ -59,11 +60,11 @@ public class Role implements GrantedAuthority {
     return roleType.getRole();
   }
 
-  public Set<Operation> getAllowedOperations() {
+  public Set<? extends GrantedAuthority> getAllowedOperations() {
     return allowedOperations;
   }
 
-  public void setAllowedOperations(Set<Operation> allowedOperations) {
+  protected void setAllowedOperations(Set<Operation> allowedOperations) {
     this.allowedOperations = allowedOperations;
   }
 
@@ -71,4 +72,6 @@ public class Role implements GrantedAuthority {
   public String toString() {
     return roleType.name();
   }
+
+
 }

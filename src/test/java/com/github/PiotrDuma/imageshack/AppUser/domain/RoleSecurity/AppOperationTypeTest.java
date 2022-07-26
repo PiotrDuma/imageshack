@@ -1,7 +1,8 @@
-package com.github.PiotrDuma.imageshack.security.model;
+package com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.AppOperationType;
 import org.junit.jupiter.api.Test;
 
 class AppOperationTypeTest {

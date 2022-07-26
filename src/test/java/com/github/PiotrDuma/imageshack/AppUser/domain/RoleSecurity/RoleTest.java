@@ -1,8 +1,10 @@
-package com.github.PiotrDuma.imageshack.security.model;
+package com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.AppRoleType;
+import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.Operation;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RoleTest {
 
-  @Mock Operation operation;
+  @Mock
+  Operation operation;
   private Role role;
   private AppRoleType roleType;
   private Set<Operation> operations;

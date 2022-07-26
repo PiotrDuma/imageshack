@@ -1,16 +1,16 @@
 package com.github.PiotrDuma.imageshack.AppUser.domain;
 
-import com.github.PiotrDuma.imageshack.security.model.Role;
+import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.Role;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -22,12 +22,12 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
-class User implements Serializable {
+public class User implements Serializable {
 
-  @EmbeddedId
+  @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
-  private UserId userId;
+  private Long id;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
   private CustomUserDetails customUserDetails;
@@ -66,12 +66,12 @@ class User implements Serializable {
     this.password = password;
   }
 
-  public UserId getUserId() {
-    return userId;
+  public Long getId() {
+    return id;
   }
 
-  public void setUserId(UserId userId) {
-    this.userId = userId;
+  public void setId(Long userId) {
+    this.id = userId;
   }
 
   public String getUsername() {
@@ -118,7 +118,7 @@ class User implements Serializable {
   @Override
   public String toString() {
     return "User{" +
-        "Id=" + userId +
+        "Id=" + id +
         ", username='" + username + '\'' +
         ", email='" + email + '\'' +
         ", password='" + password + '\'' +

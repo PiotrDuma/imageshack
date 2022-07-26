@@ -1,4 +1,4 @@
-package com.github.PiotrDuma.imageshack.security.model;
+package com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity;
 
 public enum AppRoleType {
   OWNER("ROLE_OWNER"),

@@ -1,40 +1,27 @@
-package com.github.PiotrDuma.imageshack.security;
+package com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity;
 
-import com.github.PiotrDuma.imageshack.security.config.SystemSecurityUserProvider.SystemSecurityUserProvider;
-import com.github.PiotrDuma.imageshack.security.model.AppOperationRepo;
-import com.github.PiotrDuma.imageshack.security.model.AppOperationType;
-import com.github.PiotrDuma.imageshack.security.model.AppRoleRepo;
-import com.github.PiotrDuma.imageshack.security.model.AppRoleType;
-import com.github.PiotrDuma.imageshack.security.model.Operation;
-import com.github.PiotrDuma.imageshack.security.model.Role;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
 import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
-public class SecurityRoleSetup {
-
+class SecurityRoleConfigurationImpl implements SecurityRoleConfiguration {
   private final AppOperationRepo appOperationRepo;
   private final AppRoleRepo appRoleRepo;
-  private final SystemSecurityUserProvider systemSecurityUserProvider;
 
   @Autowired
-  public SecurityRoleSetup(AppOperationRepo appOperationRepo,
-      AppRoleRepo appRoleRepo, SystemSecurityUserProvider systemSecurityUserProvider) {
+  public SecurityRoleConfigurationImpl(AppOperationRepo appOperationRepo,
+                    AppRoleRepo appRoleRepo) {
     this.appOperationRepo = appOperationRepo;
     this.appRoleRepo = appRoleRepo;
-    this.systemSecurityUserProvider = systemSecurityUserProvider;
   }
 
   @Transactional
-  @EventListener(ApplicationReadyEvent.class)
-  public void onApplicationEvent() {
+  public void setupSecurityRoleConfiguration() {
     AppOperationType.stream().forEach(this::createOperation);
 
     Set<Operation> ownerAllowedOperations = Stream.of(AppOperationType.MANAGE
@@ -64,13 +51,10 @@ public class SecurityRoleSetup {
     createRole(AppRoleType.ADMIN, adminAllowedOperations);
     createRole(AppRoleType.MODERATOR, moderatorAllowedOperations);
     createRole(AppRoleType.USER, userAllowedOperations);
-
-    //initialize system user's accounts
-  systemSecurityUserProvider.generateSystemUsers();
   }
 
   @Transactional
-  public Operation createOperation(AppOperationType operationType) {
+  private Operation createOperation(AppOperationType operationType) {
     Optional<Operation> op = appOperationRepo.findOperationByOperationType(operationType);
     if (op.isEmpty()) {
       return appOperationRepo.save(new Operation(operationType));
@@ -79,7 +63,7 @@ public class SecurityRoleSetup {
   }
 
   @Transactional
-  public Role createRole(AppRoleType roleType, Set<Operation> allowedOperations) {
+  private Role createRole(AppRoleType roleType, Set<Operation> allowedOperations) {
     Optional<Role> role = appRoleRepo.findRoleByRoleType(roleType);
     if (role.isEmpty()) {
       return appRoleRepo.save(new Role(roleType, allowedOperations));

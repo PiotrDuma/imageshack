@@ -1,24 +1,21 @@
-package com.github.PiotrDuma.imageshack.security.model;
+package com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity;
 
+import java.io.Serializable;
 import java.util.Collection;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Table(name = "operations")
-public class Operation implements GrantedAuthority {
+public class Operation implements GrantedAuthority, Serializable {
 
   @Id
   @Column(name = "operation_id")
@@ -30,16 +27,16 @@ public class Operation implements GrantedAuthority {
   private AppOperationType operationType;
 
   @ManyToMany(mappedBy = "allowedOperations")
-  private Collection<Role> roles;
+  private Collection<Role> roleEntities;
 
-  public Operation() {
+  protected Operation() {
   }
 
-  public Operation(AppOperationType operationType) {
+  protected Operation(AppOperationType operationType) {
     this.operationType = operationType;
   }
 
-  public Long getId() {
+  protected Long getId() {
     return id;
   }
 
