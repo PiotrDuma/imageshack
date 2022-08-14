@@ -19,6 +19,7 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final static String LOGIN_URL = "/login";
   private final static String LOGOUT_URL = "/logout";
+  private final static String REGISTRATION_URL = "/register";
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService userDetailsService;
 
@@ -36,7 +37,7 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers("/", "index", "/static/**", "/js/**", "/css/**",
                         "/img/**", "/json/**").permitAll()
-        .antMatchers("/api/securitytest/**").permitAll()
+        .antMatchers(REGISTRATION_URL, "/api/securitytest/**").permitAll()
         .anyRequest().authenticated()
         .and()
         .formLogin()
