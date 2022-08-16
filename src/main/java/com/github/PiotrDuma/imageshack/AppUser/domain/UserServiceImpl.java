@@ -6,6 +6,7 @@ import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.Role;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.RoleService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.exceptions.UserNotFoundException;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.AppRoleType;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -33,8 +34,8 @@ class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDetailsWrapper findUserById(java.lang.Long id) throws UsernameNotFoundException{
-    User user = userRepo.findById(new Long(id)).orElseThrow(()-> new UserNotFoundException());
+  public UserDetailsWrapper findUserById(Long id) throws UsernameNotFoundException{
+    User user = userRepo.findById(id).orElseThrow(()-> new UserNotFoundException(String.format(NOT_FOUND_BY_ID, id)));
     return new UserDetailsWrapper(user);
   }
 
@@ -83,15 +84,14 @@ class UserServiceImpl implements UserService {
 
     User user = userRepo.findById(userId)
       .orElseThrow(() -> new UserNotFoundException(String.format(NOT_FOUND_BY_ID, userId)));
-    Set<Role> roles = user.getRoles();
+//    Set<Role> roles = user.getRoles();
     Role role = roleService.findRoleByRoleType(roleType);
-    roles.remove(role);
+    user.getRoles().remove(role);
     return new UserDetailsWrapper(user);
   }
 
   @Override
   public List<UserDetailsWrapper> findUsersByRole(AppRoleType roleType) {
-    System.out.println(roleType.name());
     return userRepo.findAllByRole(roleType).stream()
         .map(k -> new UserDetailsWrapper(k))
         .collect(Collectors.toList());
