@@ -24,7 +24,7 @@ class EmailValidatorTest {
 
   @Test
   void returnFalseWhenEmailIsTooLong(){
-    String email = new RandomString(255).nextString();
+    String email = new RandomString(255).nextString() +"@imageshack.com";
     assertTrue(email.length() >254);
     assertFalse(validator.validate(email));
   }
