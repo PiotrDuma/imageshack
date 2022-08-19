@@ -59,4 +59,12 @@ class EmailValidatorTest {
     String email = "login123@imageshack.net";
     assertTrue(validator.validate(email));
   }
+
+  @Test
+  void returnFalseWhenIfEmailContainsBlankSigns(){
+    assertFalse(validator.validate("login123@imageshack.net "));
+    assertFalse(validator.validate(" login123@imageshack.net"));
+    assertFalse(validator.validate("login123@ imageshack.net"));
+    assertFalse(validator.validate("login 123@imageshack.net"));
+  }
 }
