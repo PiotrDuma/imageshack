@@ -42,7 +42,6 @@ class UserServiceImpl implements UserService {
     return new UserDetailsWrapper(user);
   }
 
-  //TODO: separate username and email finding process + add validators.
   @Override
   public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
     Validator emailValidator = new EmailValidator();
@@ -95,7 +94,6 @@ class UserServiceImpl implements UserService {
 
     User user = userRepo.findById(userId)
       .orElseThrow(() -> new UserNotFoundException(String.format(NOT_FOUND_BY_ID, userId)));
-//    Set<Role> roles = user.getRoles();
     Role role = roleService.findRoleByRoleType(roleType);
     user.getRoles().remove(role);
     return new UserDetailsWrapper(user);

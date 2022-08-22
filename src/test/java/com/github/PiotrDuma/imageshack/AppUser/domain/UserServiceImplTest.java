@@ -216,4 +216,47 @@ class UserServiceImplTest {
     Mockito.verify(this.userRepo, Mockito.times(1)).findByUsername(login);
     assertEquals(message, ex.getMessage());
   }
+
+  @Test
+  void createUserShouldReturnObjectsWithRelationship(){
+    //given
+    User user = Mockito.mock(User.class);
+    String username = "username";
+    String password = "password";
+    String email = "username@email.com";
+    UserService spy = Mockito.spy(this.userService);
+
+    //when
+    Mockito.when(user.getId()).thenReturn(1L);
+    Mockito.when(this.userRepo.save(Mockito.any())).thenReturn(user);
+    Mockito.doReturn(new UserDetailsWrapper(user)).when(spy)
+        .addRole(Mockito.anyLong(), Mockito.any(AppRoleType.class));
+
+    //then
+    UserDetailsWrapper result = spy.createNewUser(username, email, password);
+
+    assertEquals(username, result.getUsername());
+    assertEquals(username, result.getUser().getUsername());
+    assertEquals(result.getUser(), result.getCustomUserDetails().getUser());
+    assertEquals(result.getCustomUserDetails(), result.getUser().getCustomUserDetails());
+  }
+
+  @Test
+  void createNewUserShouldCallAddRoleMethod(){
+    User user = Mockito.mock(User.class);
+    String username = "username";
+    String password = "password";
+    String email = "username@email.com";
+    UserService spy = Mockito.spy(this.userService);
+
+    //when
+    Mockito.when(user.getId()).thenReturn(1L);
+    Mockito.when(this.userRepo.save(Mockito.any(User.class))).thenReturn(user);
+    Mockito.doReturn(new UserDetailsWrapper(user)).when(spy)
+        .addRole(Mockito.anyLong(), Mockito.any(AppRoleType.class));
+
+    //then
+    UserDetailsWrapper result = spy.createNewUser(username, email, password);
+    Mockito.verify(spy, Mockito.times(1)).addRole(Mockito.anyLong(), Mockito.any(AppRoleType.class));
+  }
 }
