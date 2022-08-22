@@ -19,6 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -153,5 +155,65 @@ class UserServiceImplTest {
 
     Object result = this.userService.findUserById(Mockito.anyLong());
     assertTrue(result instanceof UserDetailsWrapper);
+  }
+
+  @Test
+  void loadUserByUsernameShouldCallRepoWhenLoginIsUsername(){
+    User user = Mockito.mock(User.class);
+    String login = "username123";
+    Mockito.when(this.userRepo.findByUsername(login)).thenReturn(Optional.of(user));
+    Mockito.when(user.getUsername()).thenReturn(login);
+
+    UserDetails wrapper = this.userService.loadUserByUsername(login);
+    Mockito.verify(this.userRepo, Mockito.times(1)).findByUsername(login);
+    Mockito.verify(this.userRepo, Mockito.times(0)).findByEmail(login);
+    assertEquals(login, wrapper.getUsername());
+  }
+
+  @Test
+  void loadUserByUsernameShouldCallRepoWhenLoginIsEmail(){
+    User user = Mockito.mock(User.class);
+    String login = "username123@imageshack.com";
+    Mockito.when(this.userRepo.findByEmail(login)).thenReturn(Optional.of(user));
+    Mockito.when(user.getUsername()).thenReturn(login);
+
+    UserDetails wrapper = this.userService.loadUserByUsername(login);
+    Mockito.verify(this.userRepo, Mockito.times(0)).findByUsername(login);
+    Mockito.verify(this.userRepo, Mockito.times(1)).findByEmail(login);
+    assertEquals(login, wrapper.getUsername());
+  }
+
+  @Test
+  void loadUserByUsernameShouldThrowExceptionWhenEmailAndUsernameIsNotValid(){
+    User user = Mockito.mock(User.class);
+    String login = "   username1 23@imageshack.com";
+    String message = String.format("User %s not found", login);
+
+    Exception ex = assertThrows(UsernameNotFoundException.class,()-> this.userService.loadUserByUsername(login));
+    assertEquals(message, ex.getMessage());
+    }
+
+  @Test
+  void loadUserByUsernameShouldThrowExceptionWhenEmailNotFound(){
+    String login = "username123@imageshack.com";
+    String message = String.format("User %s not found", login);
+    UsernameNotFoundException exception = new UsernameNotFoundException(String.format("User %s not found", login));
+    Mockito.when(this.userRepo.findByEmail(login)).thenThrow(exception);
+
+    Exception ex = assertThrows(UsernameNotFoundException.class,()-> this.userService.loadUserByUsername(login));
+    Mockito.verify(this.userRepo, Mockito.times(1)).findByEmail(login);
+    assertEquals(message, ex.getMessage());
+  }
+
+  @Test
+  void loadUserByUsernameShouldThrowExceptionWhenUsernameNotFound(){
+    String login = "username123";
+    String message = String.format("User %s not found", login);
+    UsernameNotFoundException exception = new UsernameNotFoundException(String.format("User %s not found", login));
+    Mockito.when(this.userRepo.findByUsername(login)).thenThrow(exception);
+
+    Exception ex = assertThrows(UsernameNotFoundException.class,()-> this.userService.loadUserByUsername(login));
+    Mockito.verify(this.userRepo, Mockito.times(1)).findByUsername(login);
+    assertEquals(message, ex.getMessage());
   }
 }

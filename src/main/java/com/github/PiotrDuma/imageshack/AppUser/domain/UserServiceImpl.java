@@ -6,6 +6,9 @@ import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.Role;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.RoleService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.exceptions.UserNotFoundException;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.AppRoleType;
+import com.github.PiotrDuma.imageshack.validators.EmailValidator.EmailValidator;
+import com.github.PiotrDuma.imageshack.validators.UsernameValidator.UsernameValidator;
+import com.github.PiotrDuma.imageshack.validators.Validator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,11 +44,19 @@ class UserServiceImpl implements UserService {
 
   //TODO: separate username and email finding process + add validators.
   @Override
-  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    User user = userRepo.findByEmail(email)
-        .orElseThrow(() -> new UsernameNotFoundException(String.format(NOT_FOUND, email)));
-//    User user = userRepo.findByUsername(email)
-//        .orElseThrow(() -> new UsernameNotFoundException(String.format(NOT_FOUND, email)));
+  public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    Validator emailValidator = new EmailValidator();
+    Validator usernameValidator = new UsernameValidator();
+    User user;
+    if(emailValidator.validate(login)){
+      user = userRepo.findByEmail(login)
+          .orElseThrow(() -> new UsernameNotFoundException(String.format(NOT_FOUND, login)));
+    } else if (usernameValidator.validate(login)) {
+      user = userRepo.findByUsername(login)
+          .orElseThrow(() -> new UsernameNotFoundException(String.format(NOT_FOUND, login)));
+    } else {
+      throw new UsernameNotFoundException(String.format(NOT_FOUND, login));
+    }
     return new UserDetailsWrapper(user);
   }
 
