@@ -1,7 +1,7 @@
 package com.github.PiotrDuma.imageshack.AppUser;
 
+import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import java.util.Collection;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,9 +26,7 @@ public class UserMessageController {
         .getAuthentication().getAuthorities();
     if(principal instanceof UserDetails){
       UserDetailsWrapper userWrapper = (UserDetailsWrapper) principal;
-      System.out.print("user_role: ");
-      userWrapper.getUser().getRoles().stream()
-          .forEach(role -> System.out.print(role.toString()+", "));
+
       System.out.println("\nPRINT PRIVILEDGES: " + userWrapper.getAuthorities());
     }
     return authorities!=null?"authorities: "+authorities:"null";
