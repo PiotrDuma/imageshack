@@ -27,5 +27,22 @@ class TokenGeneratorImplTest {
 
     assertFalse(result1.equals(result2));
   }
+  @Test
+  void tokenCannotContainForbiddenParameterCharacters(){
+    String token = this.generator.generate();
+    //https://stackoverflow.com/questions/1455578/characters-allowed-in-get-parameter
+    
+    assertFalse(stringContainsChar(token, ":/?#[]@"));
+    assertFalse(stringContainsChar(token, "!$&'()*+,;="));
+  }
   
+  private boolean stringContainsChar(String string, String characters) {
+    for (char c: characters.toCharArray()){
+      String sign = ""+c;
+      if(string.contains(sign)){
+        return true;
+      }
+    }
+    return false;
+  }
 }
