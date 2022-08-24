@@ -6,16 +6,15 @@ import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.Role;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.RoleService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.exceptions.UserNotFoundException;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.AppRoleType;
-import com.github.PiotrDuma.imageshack.validators.EmailValidator.EmailValidator;
-import com.github.PiotrDuma.imageshack.validators.UsernameValidator.UsernameValidator;
-import com.github.PiotrDuma.imageshack.validators.Validator;
-import java.util.HashSet;
+import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.EmailValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.UsernameValidator.UsernameValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,12 +27,18 @@ class UserServiceImpl implements UserService {
   private final UserRepository userRepo;
   private final RoleService roleService;
   private final PasswordEncoder passwordEncoder;
+  private final Validator emailValidator;
+  private final Validator usernameValidator;
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepo, RoleService roleService, PasswordEncoder passwordEncoder) {
+  public UserServiceImpl(UserRepository userRepo, RoleService roleService, PasswordEncoder passwordEncoder,
+                        @Qualifier("emailValidator") Validator emailValidator,
+                        @Qualifier("usernameValidator") Validator usernameValidator) {
     this.userRepo = userRepo;
     this.roleService = roleService;
     this.passwordEncoder = passwordEncoder;
+    this.emailValidator = emailValidator;
+    this.usernameValidator = usernameValidator;
   }
 
   @Override
@@ -44,8 +49,6 @@ class UserServiceImpl implements UserService {
 
   @Override
   public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-    Validator emailValidator = new EmailValidator();
-    Validator usernameValidator = new UsernameValidator();
     User user;
     if(emailValidator.validate(login)){
       user = userRepo.findByEmail(login)

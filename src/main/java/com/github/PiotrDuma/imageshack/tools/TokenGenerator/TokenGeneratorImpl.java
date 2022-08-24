@@ -1,10 +1,10 @@
-package com.github.PiotrDuma.imageshack.TokenGenerator;
+package com.github.PiotrDuma.imageshack.tools.TokenGenerator;
 
 import java.security.SecureRandom;
 import java.util.Base64;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-@Qualifier("TokenGenerator")
+@Qualifier("tokenGenerator")
 class TokenGeneratorImpl implements TokenGenerator{
   //source https://stackoverflow.com/posts/56628391/revisions
   private final SecureRandom secureRandom;

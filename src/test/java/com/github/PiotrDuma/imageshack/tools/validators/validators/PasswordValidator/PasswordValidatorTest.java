@@ -1,8 +1,9 @@
-package com.github.PiotrDuma.imageshack.validators.PasswordValidator;
+package com.github.PiotrDuma.imageshack.tools.validators.validators.PasswordValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.PiotrDuma.imageshack.validators.Validator;
+import com.github.PiotrDuma.imageshack.tools.validators.PasswordValidator.PasswordValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

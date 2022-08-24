@@ -1,4 +1,4 @@
-package com.github.PiotrDuma.imageshack.TokenGenerator;
+package com.github.PiotrDuma.imageshack.tools.TokenGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 

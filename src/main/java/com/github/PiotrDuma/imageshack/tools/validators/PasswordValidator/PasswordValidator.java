@@ -1,8 +1,10 @@
-package com.github.PiotrDuma.imageshack.validators.PasswordValidator;
+package com.github.PiotrDuma.imageshack.tools.validators.PasswordValidator;
 
-import com.github.PiotrDuma.imageshack.validators.AbstractValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.AbstractValidator;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
+@Component("passwordValidator")
 public class PasswordValidator extends AbstractValidator {
   //Pattern regex statements: https://stackoverflow.com/questions/3802192/regexp-java-for-password-validation
   private static final String REQUIRE_LOWER_CASE = "(?=.*[a-z])";

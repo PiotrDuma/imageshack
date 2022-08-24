@@ -8,6 +8,7 @@ import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.NoSuchRoleExc
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.Role;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.RoleService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.exceptions.UserNotFoundException;
+import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,12 +33,16 @@ class UserServiceImplTest {
   private RoleService roleService;
   @Mock
   private PasswordEncoder passwordEncoder;
-
+  @Mock
+  private Validator emailValidator;
+  @Mock
+  private Validator usernameValidator;
   private UserService userService;
 
   @BeforeEach
   void setUp(){
-    this.userService = new UserServiceImpl(userRepo, roleService, passwordEncoder);
+    this.userService = new UserServiceImpl(userRepo, roleService, passwordEncoder,
+        emailValidator, usernameValidator);
   }
 
   @Test
@@ -163,6 +168,8 @@ class UserServiceImplTest {
     String login = "username123";
     Mockito.when(this.userRepo.findByUsername(login)).thenReturn(Optional.of(user));
     Mockito.when(user.getUsername()).thenReturn(login);
+    Mockito.when(this.emailValidator.validate(login)).thenReturn(false);
+    Mockito.when(this.usernameValidator.validate(login)).thenReturn(true);
 
     UserDetails wrapper = this.userService.loadUserByUsername(login);
     Mockito.verify(this.userRepo, Mockito.times(1)).findByUsername(login);
@@ -176,6 +183,7 @@ class UserServiceImplTest {
     String login = "username123@imageshack.com";
     Mockito.when(this.userRepo.findByEmail(login)).thenReturn(Optional.of(user));
     Mockito.when(user.getUsername()).thenReturn(login);
+    Mockito.when(this.emailValidator.validate(login)).thenReturn(true);
 
     UserDetails wrapper = this.userService.loadUserByUsername(login);
     Mockito.verify(this.userRepo, Mockito.times(0)).findByUsername(login);
@@ -198,6 +206,8 @@ class UserServiceImplTest {
     String login = "username123@imageshack.com";
     String message = String.format("User %s not found", login);
     UsernameNotFoundException exception = new UsernameNotFoundException(String.format("User %s not found", login));
+
+    Mockito.when(this.emailValidator.validate(login)).thenReturn(true);
     Mockito.when(this.userRepo.findByEmail(login)).thenThrow(exception);
 
     Exception ex = assertThrows(UsernameNotFoundException.class,()-> this.userService.loadUserByUsername(login));
@@ -210,6 +220,8 @@ class UserServiceImplTest {
     String login = "username123";
     String message = String.format("User %s not found", login);
     UsernameNotFoundException exception = new UsernameNotFoundException(String.format("User %s not found", login));
+
+    Mockito.when(this.usernameValidator.validate(login)).thenReturn(true);
     Mockito.when(this.userRepo.findByUsername(login)).thenThrow(exception);
 
     Exception ex = assertThrows(UsernameNotFoundException.class,()-> this.userService.loadUserByUsername(login));

@@ -3,7 +3,6 @@ package com.github.PiotrDuma.imageshack.api.registration;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service

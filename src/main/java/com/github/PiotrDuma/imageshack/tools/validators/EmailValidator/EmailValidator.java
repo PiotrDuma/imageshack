@@ -1,8 +1,10 @@
-package com.github.PiotrDuma.imageshack.validators.EmailValidator;
+package com.github.PiotrDuma.imageshack.tools.validators.EmailValidator;
 
-import com.github.PiotrDuma.imageshack.validators.AbstractValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.AbstractValidator;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
+@Component("emailValidator")
 public class EmailValidator extends AbstractValidator {
   private static final Integer MIN_LENGTH = 3;
   private static final Integer MAX_LENGTH = 64;

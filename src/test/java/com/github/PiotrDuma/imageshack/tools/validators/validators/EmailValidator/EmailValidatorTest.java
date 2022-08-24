@@ -1,8 +1,9 @@
-package com.github.PiotrDuma.imageshack.validators.EmailValidator;
+package com.github.PiotrDuma.imageshack.tools.validators.validators.EmailValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.PiotrDuma.imageshack.validators.Validator;
+import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.EmailValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

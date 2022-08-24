@@ -15,15 +15,8 @@ public class UserDetailsWrapper implements UserDetails {
   }
 
   protected UserDetailsWrapper(Builder builder){
-    this.user = new User(builder.user.getUsername(),
-        builder.user.getEmail(),
-        builder.user.getPassword());
-    this.customUserDetails = new CustomUserDetails(
-        builder.customUserDetails.isAccountNonExpired(),
-        builder.customUserDetails.isAccountNonLocked(),
-        builder.customUserDetails.isCredentialsNonExpired(),
-        builder.customUserDetails.isEnabled()
-    );
+    this.user = builder.user;
+    this.customUserDetails = builder.customUserDetails;
   }
 
   @Override
@@ -113,7 +106,7 @@ public class UserDetailsWrapper implements UserDetails {
     private User user;
     private CustomUserDetails customUserDetails;
 
-    public Builder(String email, String username, String password){
+    public Builder(String username, String email, String password){
       this.user = new User(username, email, password);
       this.customUserDetails = new CustomUserDetails(true, true,true, true);
       this.customUserDetails.setUser(user);

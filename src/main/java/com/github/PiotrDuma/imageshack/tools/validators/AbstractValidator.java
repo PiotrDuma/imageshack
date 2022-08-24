@@ -1,4 +1,4 @@
-package com.github.PiotrDuma.imageshack.validators;
+package com.github.PiotrDuma.imageshack.tools.validators;
 
 
 import java.util.regex.Matcher;

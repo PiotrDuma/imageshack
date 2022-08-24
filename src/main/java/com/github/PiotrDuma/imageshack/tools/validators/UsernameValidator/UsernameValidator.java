@@ -1,8 +1,10 @@
-package com.github.PiotrDuma.imageshack.validators.UsernameValidator;
+package com.github.PiotrDuma.imageshack.tools.validators.UsernameValidator;
 
-import com.github.PiotrDuma.imageshack.validators.AbstractValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.AbstractValidator;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
+@Component("usernameValidator")
 public class UsernameValidator extends AbstractValidator {
   private static final Integer MIN_LENGTH = 3;
   private static final Integer MAX_LENGTH = 64;
