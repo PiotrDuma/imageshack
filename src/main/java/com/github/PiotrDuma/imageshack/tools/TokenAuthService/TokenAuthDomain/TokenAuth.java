@@ -18,7 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "tokens")
-public class TokenAuth implements Serializable {
+class TokenAuth implements Serializable {
 
   @Id
   @Column(name = "token_id", nullable = false, unique = true)
@@ -51,7 +51,7 @@ public class TokenAuth implements Serializable {
   @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime expired;
 
-  public TokenAuth() {
+  protected TokenAuth() {
   }
 
   public TokenAuth(String email, String token, TokenAuthType tokenAuthType,

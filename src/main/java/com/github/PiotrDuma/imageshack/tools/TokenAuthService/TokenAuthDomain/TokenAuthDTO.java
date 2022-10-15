@@ -1,5 +1,6 @@
-package com.github.PiotrDuma.imageshack.tools.TokenAuthService;
+package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuth;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,14 @@ public class TokenAuthDTO {
     this.tokenType = tokenType;
     this.created = created;
     this.expired = expired;
+  }
+
+  protected TokenAuthDTO(TokenAuth tokenAuth) {
+    this.email = tokenAuth.getEmail();
+    this.token = tokenAuth.getToken();
+    this.tokenType = tokenAuth.getTokenAuthType();
+    this.created = tokenAuth.getCreateDate();
+    this.expired = tokenAuth.getExpired();
   }
 
   public String getEmail() {
