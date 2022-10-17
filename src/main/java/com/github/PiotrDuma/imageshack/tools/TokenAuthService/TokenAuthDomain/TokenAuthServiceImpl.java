@@ -2,13 +2,17 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthService;
 import com.github.PiotrDuma.imageshack.tools.TokenGenerator.TokenGenerator;
+import java.time.Instant;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Service;
 
+//TODO: ADD TESTS
+@Service
 class TokenAuthServiceImpl implements TokenAuthService {
     private static final String NOT_FOUND_BY_EMAIL = "TOKEN NOT FOUND BY EMAIL: %s";
     private final TokenAuthRepo tokenAuthRepo;
@@ -59,8 +63,9 @@ class TokenAuthServiceImpl implements TokenAuthService {
         return this.tokenAuthRepo.getTokensByEmail(email).stream().map(e -> new TokenAuthDTO((e)));
     }
 
-    @Override //TODO
+    @Override
     public Stream<TokenAuthDTO> getAllExpiredTokens() {
-        return null;
+        return this.tokenAuthRepo.getExpiredTokens(Instant.now())
+            .map(elem -> new TokenAuthDTO(elem));
     }
 }
