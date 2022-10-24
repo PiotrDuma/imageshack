@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 //TODO: ADD TESTS
+@Deprecated
 @Service
 class TokenAuthServiceImpl implements TokenAuthService {
     private static final String NOT_FOUND_BY_EMAIL = "TOKEN NOT FOUND BY EMAIL: %s";

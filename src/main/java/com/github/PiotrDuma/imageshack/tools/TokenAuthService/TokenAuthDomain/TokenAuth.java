@@ -16,6 +16,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
+//TODO:refactoring.
 @Entity
 @Table(name = "tokens")
 class TokenAuth implements Serializable {

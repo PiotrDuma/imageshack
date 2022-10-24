@@ -1,5 +1,8 @@
-package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
+package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject;
 
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
+
+@Deprecated
 public class TokenObject {
   private static final String NULL_VALUE = "Token value cannot be null.";
   private static final String NULL_TYPE = "Token type cannot be null.";

@@ -5,6 +5,7 @@ import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.To
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Deprecated
 public interface TokenAuthService {
   TokenAuthDTO createToken(String email, TokenAuthType tokenAuthType, int activeTimeInMinutes);
   boolean isTokenActive(String email, String token, TokenAuthType tokenAuthType);

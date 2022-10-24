@@ -4,6 +4,7 @@ import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.To
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import java.time.LocalDateTime;
 
+@Deprecated
 public class TokenAuthDTO {
   private String email;
   private String token;
