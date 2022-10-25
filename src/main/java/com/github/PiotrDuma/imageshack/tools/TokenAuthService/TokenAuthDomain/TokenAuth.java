@@ -1,8 +1,9 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,7 +17,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
-//TODO:refactoring.
 @Entity
 @Table(name = "tokens")
 class TokenAuth implements Serializable {
@@ -44,25 +44,25 @@ class TokenAuth implements Serializable {
   private TokenAuthType tokenAuthType;
 
   @Column(name = "created", nullable = false)
-  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime createDate; //TODO: refactor localdatetime to Instant.
+  @JsonFormat(shape = Shape.STRING ,pattern="yyyy-MM-dd HH:mm:ss", timezone = "UTC")
+  private Instant createDateTime;
 
   @Column(name = "expired", nullable = false)
-  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+  @JsonFormat(shape = Shape.STRING ,pattern="yyyy-MM-dd HH:mm:ss", timezone = "UTC")
   @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime expired;
+  private Instant expiredDateTime;
 
   protected TokenAuth() {
   }
 
-  public TokenAuth(String email, String token, TokenAuthType tokenAuthType,
-      LocalDateTime createDate,
-      LocalDateTime expired) {
+  protected TokenAuth(String email, String token, TokenAuthType tokenAuthType,
+      Instant createDateTime,
+      Instant expiredDateTime) {
     this.email = email;
     this.token = token;
     this.tokenAuthType = tokenAuthType;
-    this.createDate = createDate;
-    this.expired = expired;
+    this.createDateTime = createDateTime;
+    this.expiredDateTime = expiredDateTime;
   }
 
   public Long getId() {
@@ -90,20 +90,20 @@ class TokenAuth implements Serializable {
     this.tokenAuthType = tokenAuthType;
   }
 
-  public LocalDateTime getCreateDate() {
-    return createDate;
+  public Instant getCreateDateTime() {
+    return createDateTime;
   }
 
-  public void setCreateDate(LocalDateTime createDate) {
-    this.createDate = createDate;
+  public void setCreateDateTime(Instant createDateTime) {
+    this.createDateTime = createDateTime;
   }
 
-  public LocalDateTime getExpired() {
-    return expired;
+  public Instant getExpiredDateTime() {
+    return expiredDateTime;
   }
 
-  public void setExpired(LocalDateTime expired) {
-    this.expired = expired;
+  public void setExpiredDateTime(Instant expiredDateTime) {
+    this.expiredDateTime = expiredDateTime;
   }
 
   public String getToken() {
