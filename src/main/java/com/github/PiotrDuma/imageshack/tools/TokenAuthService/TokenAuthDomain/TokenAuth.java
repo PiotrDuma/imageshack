@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,7 +39,6 @@ class TokenAuth implements Serializable {
   private String token;
 
   @NotNull
-  @NotEmpty
   @Column(name = "token_type", nullable = false)
   @Enumerated(EnumType.STRING)
   private TokenAuthType tokenAuthType;
@@ -112,5 +112,25 @@ class TokenAuth implements Serializable {
 
   public void setToken(String token) {
     this.token = token;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TokenAuth tokenAuth = (TokenAuth) o;
+    return id.equals(tokenAuth.id) && email.equals(tokenAuth.email) && token.equals(tokenAuth.token)
+        && tokenAuthType == tokenAuth.tokenAuthType && createDateTime.equals(
+        tokenAuth.createDateTime)
+        && expiredDateTime.equals(tokenAuth.expiredDateTime);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, email, token, tokenAuthType, createDateTime, expiredDateTime);
   }
 }

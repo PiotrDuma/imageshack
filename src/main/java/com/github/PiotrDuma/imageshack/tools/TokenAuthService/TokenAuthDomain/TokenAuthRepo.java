@@ -1,7 +1,6 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
 import java.time.Instant;
-import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +13,6 @@ import java.util.Optional;
 interface TokenAuthRepo extends JpaRepository<TokenAuth, Long> {
     Optional<TokenAuth> getTokenByEmail(String email);
     List<TokenAuth> getTokensByEmail(String email);
-    @Query("SELECT t FROM TokenAuth t WHERE t.expired < :timeNow ")
-    Stream<TokenAuth> getExpiredTokens(@Param("timeNow") Instant timeNow);
+    @Query("SELECT t FROM TokenAuth t WHERE t.expiredDateTime < :timeNow ")
+    List<TokenAuth> getExpiredTokens(@Param("timeNow") Instant timeNow);
 }
