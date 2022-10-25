@@ -1,4 +1,4 @@
-package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
+package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject;
 
 
 public class TokenAuthNotFoundException extends RuntimeException {

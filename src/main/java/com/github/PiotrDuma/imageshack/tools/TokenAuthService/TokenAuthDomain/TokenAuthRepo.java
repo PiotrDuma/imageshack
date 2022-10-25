@@ -1,8 +1,6 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuth;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
