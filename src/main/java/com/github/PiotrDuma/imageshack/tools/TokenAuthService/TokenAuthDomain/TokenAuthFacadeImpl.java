@@ -1,33 +1,40 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.AbstractTokenObject;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Component;
 
+@Component
 class TokenAuthFacadeImpl implements TokenAuthFacade {
+  private final TokenAuthService service;
+
+  public TokenAuthFacadeImpl(TokenAuthService service) {
+    this.service = service;
+  }
 
   @Override
-  public <T extends AbstractTokenObject> T create(T tokenObject) {
+  public TokenObject create(TokenObject tokenObject) {
     return null;
   }
 
   @Override
-  public <T extends AbstractTokenObject> boolean isValid(T tokenObject) throws RuntimeException {
+  public boolean isValid(TokenObject tokenObject) throws RuntimeException {
     return false;
   }
 
   @Override
-  public <T extends AbstractTokenObject> void delete(T tokenObject) throws RuntimeException {
+  public void delete(TokenObject tokenObject) throws RuntimeException {
 
   }
 
   @Override
-  public <T extends AbstractTokenObject> Stream<T> find(String tokenValue) {
+  public Stream<TokenObject> find(String tokenValue) {
     return null;
   }
 
   @Override
-  public <T extends AbstractTokenObject> Stream<T> findByEmail(String email) {
+  public Stream<TokenObject> findByEmail(String email) {
     return null;
   }
 

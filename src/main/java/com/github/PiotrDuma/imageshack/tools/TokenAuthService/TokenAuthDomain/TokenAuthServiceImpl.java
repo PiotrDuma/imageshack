@@ -1,23 +1,19 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.AbstractTokenObject;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.PasswordResetTokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthNotFoundException;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenGenerator.TokenGenerator;
 import java.time.Instant;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 //TODO: REFACTORING, ADD TESTS
 @Service
-class TokenAuthServiceImpl implements TokenAuthService<AbstractTokenObject> {
+class TokenAuthServiceImpl implements TokenAuthService {
     private static final String NOT_FOUND_BY_EMAIL = "TOKEN NOT FOUND BY EMAIL: %s";
     private final TokenAuthRepo tokenAuthRepo;
     private final TokenGenerator tokenGenerator;
@@ -29,22 +25,22 @@ class TokenAuthServiceImpl implements TokenAuthService<AbstractTokenObject> {
     }
 
     @Override
-    public AbstractTokenObject createToken(TokenAuthDTO tokenAuthDTO) {
+    public TokenObject createToken(TokenAuthDTO tokenAuthDTO) {
         return null;
     }
 
     @Override
-    public boolean isActive(AbstractTokenObject tokenObject) {
+    public boolean isActive(TokenObject tokenObject) {
         return false;
     }
 
     @Override
-    public Instant expiresAt(AbstractTokenObject tokenObject) {
+    public Instant expiresAt(TokenObject tokenObject) throws TokenAuthNotFoundException {
         return null;
     }
 
     @Override
-    public void delete(AbstractTokenObject tokenObject) throws TokenAuthNotFoundException {
+    public void delete(TokenObject tokenObject) throws TokenAuthNotFoundException {
 
     }
 
@@ -75,25 +71,24 @@ class TokenAuthServiceImpl implements TokenAuthService<AbstractTokenObject> {
     }
 
     @Override
-    public Optional<AbstractTokenObject> findToken(String tokenValue) {
+    public Optional<TokenObject> findToken(String tokenValue) {
         return Optional.empty();
     }
 
     @Override
-    public Stream<AbstractTokenObject> getAllTokensByEmail(String email) {
+    public Stream<TokenObject> getAllTokensByEmail(String email) {
         return null;
     }
 
     @Override
-    public Stream<AbstractTokenObject> getAllExpiredTokens() {
+    public Stream<TokenObject> getAllExpiredTokens() {
         return null;
     }
 
     @Override
-    public Stream<AbstractTokenObject> getAllExpiredTokens(String email) {
+    public Stream<TokenObject> getAllExpiredTokens(String email) {
         return null;
     }
-
     //    @Override
 //    public TokenAuthDTO createToken(String email, TokenAuthType tokenAuthType, int activeTimeInMinutes) {
 //        LocalDateTime created = LocalDateTime.now();
