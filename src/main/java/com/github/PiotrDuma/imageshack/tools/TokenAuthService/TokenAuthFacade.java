@@ -1,6 +1,5 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService;
 
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.AbstractTokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import java.util.stream.Stream;
 

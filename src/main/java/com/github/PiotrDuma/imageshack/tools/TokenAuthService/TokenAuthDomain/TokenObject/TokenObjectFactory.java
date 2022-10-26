@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TokenObjectFactory {
-  private final static String NULL_TYPE = "TokenAuthDTO has no token type: token auth type is null";
+  private final static String NULL_TYPE = "TokenAuthDTO has no token type: token auth type is null.";
   private static final String UNKNOWN_TYPE = "Cannot generate TokenObject. Unknown token type: %s.";
   private final TokenGenerator generator;
 
