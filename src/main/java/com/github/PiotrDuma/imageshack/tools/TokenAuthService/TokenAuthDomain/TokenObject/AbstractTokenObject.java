@@ -12,7 +12,8 @@ abstract class AbstractTokenObject implements TokenObject{
       int activeTimeInMinutes) {
     this.tokenValue = tokenValue;
     this.email = email;
-    //TODO
+    this.tokenType = tokenAuthType;
+    this.tokenActiveTimeMinutes = activeTimeInMinutes;
   }
 
   public String getTokenValue() {

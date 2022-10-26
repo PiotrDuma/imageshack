@@ -27,6 +27,6 @@ public class TokenObjectFactory {
       case ACCOUNT_CONFIRMATION:
         return new AccountConfirmationTokenObject(tokenAuthDTO.getEmail(), this.generator.generate());
     }
-    throw new RuntimeException(UNKNOWN_TYPE + tokenType);
+    throw new RuntimeException(UNKNOWN_TYPE + tokenType); //unreachable line, but compiler requires return.
   }
 }
