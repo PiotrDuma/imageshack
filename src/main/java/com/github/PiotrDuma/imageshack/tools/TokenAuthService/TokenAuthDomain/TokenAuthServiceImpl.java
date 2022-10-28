@@ -89,6 +89,12 @@ class TokenAuthServiceImpl implements TokenAuthService {
     public Stream<TokenObject> getAllExpiredTokens(String email) {
         return null;
     }
+
+    @Override
+    public boolean present(TokenObject tokenObject) {
+        return false;
+    }
+
     //    @Override
 //    public TokenAuthDTO createToken(String email, TokenAuthType tokenAuthType, int activeTimeInMinutes) {
 //        LocalDateTime created = LocalDateTime.now();

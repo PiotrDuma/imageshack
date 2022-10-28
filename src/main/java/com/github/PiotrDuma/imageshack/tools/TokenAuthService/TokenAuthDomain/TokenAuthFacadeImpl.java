@@ -1,45 +1,82 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
+import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.EmailValidator;
+import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
 import java.util.stream.Stream;
+import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 class TokenAuthFacadeImpl implements TokenAuthFacade {
+  private final static String MESSAGE_NULL_TYPE = "TokenAuth type cannot be null.";
+  private final static String MESSAGE_NULL_EMAIL = "Token email cannot be null.";
+  private final static String TOKEN_NOT_FOUND = "Token with email: %s and value: %s has not been found.";
   private final TokenAuthService service;
+  private final EmailValidator emailValidator;
 
-  public TokenAuthFacadeImpl(TokenAuthService service) {
+  @Autowired
+  public TokenAuthFacadeImpl(TokenAuthService service, EmailValidator emailValidator) {
     this.service = service;
+    this.emailValidator = emailValidator;
   }
 
   @Override
-  public TokenObject create(TokenObject tokenObject) {
-    return null;
+  public TokenObject create(TokenAuthDTO tokenObject) {
+    checkInput(tokenObject);
+    if(this.emailValidator.validate(tokenObject.getEmail())){
+      throw new InvalidEmailAddressException(tokenObject.getEmail());
+    }
+    return this.service.createToken(tokenObject);
   }
 
   @Override
   public boolean isValid(TokenObject tokenObject) throws RuntimeException {
-    return false;
+    isTokenExists(tokenObject);
+    return this.service.isActive(tokenObject);
   }
 
   @Override
+  @Transactional
   public void delete(TokenObject tokenObject) throws RuntimeException {
-
+    isTokenExists(tokenObject);
+    delete(tokenObject);
   }
 
   @Override
   public Stream<TokenObject> find(String tokenValue) {
-    return null;
+    return this.service.findToken(tokenValue).stream();
   }
 
   @Override
   public Stream<TokenObject> findByEmail(String email) {
-    return null;
+    return this.service.getAllTokensByEmail(email);
   }
 
   @Override
+  @Transactional
   public void deleteExpiredTokens(String email) {
+    this.service.getAllExpiredTokens()
+        .forEach(token -> this.service.delete(token));
+  }
 
+  private void isTokenExists(TokenObject token){
+    if(this.service.present(token)){
+      throw new RuntimeException(String.format(TOKEN_NOT_FOUND, token.getEmail(), token.getTokenValue()));
+    }
+  }
+
+  private static void checkInput(@NotNull TokenAuthDTO token){
+    if(token.getTokenType() == null){
+      throw new RuntimeException(MESSAGE_NULL_TYPE);
+    }
+    String email = token.getEmail();
+    if(email == null){
+      throw new RuntimeException(MESSAGE_NULL_EMAIL);
+    }
   }
 }

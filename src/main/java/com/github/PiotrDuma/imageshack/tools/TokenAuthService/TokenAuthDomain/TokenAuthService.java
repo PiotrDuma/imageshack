@@ -21,4 +21,5 @@ interface TokenAuthService {
   Stream<TokenObject> getAllTokensByEmail(String email);
   Stream<TokenObject> getAllExpiredTokens();
   Stream<TokenObject> getAllExpiredTokens(String email);
+  boolean present(TokenObject tokenObject);
 }
