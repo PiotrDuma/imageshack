@@ -28,7 +28,7 @@ class TokenAuthFacadeImpl implements TokenAuthFacade {
   @Override
   public TokenObject create(TokenAuthDTO tokenObject) {
     checkInput(tokenObject);
-    if(this.emailValidator.validate(tokenObject.getEmail())){
+    if(!this.emailValidator.validate(tokenObject.getEmail())){
       throw new InvalidEmailAddressException(tokenObject.getEmail());
     }
     return this.service.createToken(tokenObject);
@@ -44,7 +44,7 @@ class TokenAuthFacadeImpl implements TokenAuthFacade {
   @Transactional
   public void delete(TokenObject tokenObject) throws RuntimeException {
     isTokenExists(tokenObject);
-    delete(tokenObject);
+    this.service.delete(tokenObject);
   }
 
   @Override
@@ -60,12 +60,12 @@ class TokenAuthFacadeImpl implements TokenAuthFacade {
   @Override
   @Transactional
   public void deleteExpiredTokens(String email) {
-    this.service.getAllExpiredTokens()
+    this.service.getAllExpiredTokens(email)
         .forEach(token -> this.service.delete(token));
   }
 
   private void isTokenExists(TokenObject token){
-    if(this.service.present(token)){
+    if(!this.service.present(token)){
       throw new RuntimeException(String.format(TOKEN_NOT_FOUND, token.getEmail(), token.getTokenValue()));
     }
   }
