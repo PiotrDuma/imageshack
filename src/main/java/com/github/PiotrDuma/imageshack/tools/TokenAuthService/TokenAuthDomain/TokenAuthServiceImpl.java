@@ -3,7 +3,9 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthNotFoundException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObjectFactory;
 import com.github.PiotrDuma.imageshack.tools.TokenGenerator.TokenGenerator;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,16 @@ class TokenAuthServiceImpl implements TokenAuthService {
     private static final String NOT_FOUND_BY_EMAIL = "TOKEN NOT FOUND BY EMAIL: %s";
     private final TokenAuthRepo tokenAuthRepo;
     private final TokenGenerator tokenGenerator;
+    private final TokenObjectFactory tokenObjectFactory;
+    private final Clock clock;
 
     @Autowired
-    public TokenAuthServiceImpl(TokenAuthRepo tokenAuthRepo, TokenGenerator tokenGenerator) {
+    public TokenAuthServiceImpl(TokenAuthRepo tokenAuthRepo, TokenGenerator tokenGenerator,
+        TokenObjectFactory tokenObjectFactory, Clock clock) {
         this.tokenAuthRepo = tokenAuthRepo;
         this.tokenGenerator = tokenGenerator;
+        this.tokenObjectFactory = tokenObjectFactory;
+        this.clock = clock;
     }
 
     @Override
