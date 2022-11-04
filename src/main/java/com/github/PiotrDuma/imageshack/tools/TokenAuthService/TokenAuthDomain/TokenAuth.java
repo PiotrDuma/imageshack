@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -61,6 +62,14 @@ class TokenAuth implements Serializable {
     this.email = email;
     this.token = token;
     this.tokenAuthType = tokenAuthType;
+    this.createDateTime = createDateTime;
+    this.expiredDateTime = expiredDateTime;
+  }
+
+  protected TokenAuth(TokenObject tokenObject, Instant createDateTime, Instant expiredDateTime) {
+    this.email = tokenObject.getEmail();
+    this.token = tokenObject.getTokenValue();
+    this.tokenAuthType = tokenObject.getTokenType();
     this.createDateTime = createDateTime;
     this.expiredDateTime = expiredDateTime;
   }
