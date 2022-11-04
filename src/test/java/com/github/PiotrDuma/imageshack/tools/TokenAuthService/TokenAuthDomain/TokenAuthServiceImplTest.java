@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import antlr.Token;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObjectFactory;
@@ -13,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,7 +51,11 @@ class TokenAuthServiceImplTest {
   @Test
   void createTokenMethodShouldCallRepoAndReturnValidObject(){
     TokenAuthDTO dto = new TokenAuthDTO(TOKEN_EMAIL, TOKEN_TYPE);
+    TokenAuth mockTokenAuth = Mockito.mock(TokenAuth.class);
     TokenObject tokenObject = mockTokenObjectFactory(dto);
+
+    Mockito.when(clock.instant()).thenReturn(NOW.toInstant());
+    Mockito.when(tokenObject.getTokenActiveTimeMinutes()).thenReturn(30);
 
     TokenObject result = this.service.createToken(dto);
     Mockito.verify(this.repo, Mockito.times(1)).save(Mockito.any(TokenAuth.class));
@@ -75,22 +81,21 @@ class TokenAuthServiceImplTest {
   void createTokenMethodShouldInitializeTokenAuthWithValidValues(){
     TokenAuthDTO dto = new TokenAuthDTO(TOKEN_EMAIL, TOKEN_TYPE);
     TokenObject tokenObject = mockTokenObjectFactory(dto);
-    Instant currentTime = clock.instant();
-    Instant expiredTime = currentTime.plus(tokenObject.getTokenActiveTimeMinutes(), ChronoUnit.MINUTES);
-    TokenAuth inputTokenAuth = new TokenAuth(tokenObject.getEmail(), tokenObject.getTokenValue(),
-        tokenObject.getTokenType(), currentTime, expiredTime);
 
     //when
     Mockito.when(tokenObject.getTokenActiveTimeMinutes()).thenReturn(30);
     Mockito.when(clock.instant()).thenReturn(NOW.toInstant());
-    Mockito.when(this.repo.save(inputTokenAuth)).thenReturn(inputTokenAuth);
+    Instant currentTime = clock.instant();
+    Instant expiredTime = currentTime.plus(tokenObject.getTokenActiveTimeMinutes(), ChronoUnit.MINUTES);
+
+    ArgumentCaptor<TokenAuth> argument = ArgumentCaptor.forClass(TokenAuth.class);
 
     //then
     TokenObject result = this.service.createToken(dto);
-    TokenAuth resultToken = (TokenAuth) result;
+    Mockito.verify(this.repo).save(argument.capture());
 
-    assertEquals(currentTime, resultToken.getCreateDateTime());
-    assertEquals(expiredTime, resultToken.getExpiredDateTime());
+    assertEquals(currentTime, argument.getValue().getCreateDateTime());
+    assertEquals(expiredTime, argument.getValue().getExpiredDateTime());
     assertEquals(TOKEN_EMAIL, result.getEmail());
     assertEquals(TOKEN_VALUE, result.getTokenValue());
     assertEquals(TOKEN_TYPE, result.getTokenType());

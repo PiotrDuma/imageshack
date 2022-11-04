@@ -6,14 +6,17 @@ import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.To
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObjectFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 //TODO: REFACTORING, ADD TESTS
 @Service
+@Transactional(readOnly = true)
 class TokenAuthServiceImpl implements TokenAuthService {
     private static final String NOT_FOUND_BY_EMAIL = "TOKEN NOT FOUND BY EMAIL: %s";
     private final TokenAuthRepo tokenAuthRepo;
@@ -29,8 +32,14 @@ class TokenAuthServiceImpl implements TokenAuthService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public TokenObject createToken(TokenAuthDTO tokenAuthDTO) {
-        return null;
+        TokenObject tokenObject = this.tokenObjectFactory.getTokenObject(tokenAuthDTO);
+        Instant currentTime = this.clock.instant();
+        Instant expiredTime = currentTime.plus(tokenObject.getTokenActiveTimeMinutes(), ChronoUnit.MINUTES);
+        TokenAuth token = new TokenAuth(tokenObject, currentTime, expiredTime);
+        this.tokenAuthRepo.save(token);
+        return tokenObject;
     }
 
     @Override
