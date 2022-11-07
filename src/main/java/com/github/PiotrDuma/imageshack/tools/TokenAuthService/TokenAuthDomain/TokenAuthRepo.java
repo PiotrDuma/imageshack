@@ -15,4 +15,7 @@ interface TokenAuthRepo extends JpaRepository<TokenAuth, Long> {
     List<TokenAuth> getTokensByEmail(String email);
     @Query("SELECT t FROM TokenAuth t WHERE t.expiredDateTime < :timeNow ")
     List<TokenAuth> getExpiredTokens(@Param("timeNow") Instant timeNow);
+    @Query("SELECT t FROM TokenAuth t WHERE t.email = :email AND t.token = :value")
+    Optional<TokenAuth> getTokenByEmailAndTokenValue(@Param("email") String email,
+                                    @Param("value") String tokenValue);
 }

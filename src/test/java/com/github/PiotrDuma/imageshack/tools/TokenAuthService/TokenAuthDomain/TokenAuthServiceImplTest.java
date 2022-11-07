@@ -2,8 +2,8 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import antlr.Token;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthNotFoundException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObjectFactory;
 import java.time.Clock;
@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,8 @@ class TokenAuthServiceImplTest {
   private static final String TOKEN_EMAIL = "email@imageshack.com";
   private static final TokenAuthType TOKEN_TYPE = TokenAuthType.ACCOUNT_CONFIRMATION;
   private static final String TOKEN_VALUE = "1a2b3c";
+  private static final String TOKEN_NOT_FOUND_MESSAGE = "Token not found. Cannot find token with "
+      + "email address: %s and value: %s.";
   @Mock
   private TokenAuthRepo repo;
   @Mock
@@ -99,6 +102,62 @@ class TokenAuthServiceImplTest {
     assertEquals(TOKEN_EMAIL, result.getEmail());
     assertEquals(TOKEN_VALUE, result.getTokenValue());
     assertEquals(TOKEN_TYPE, result.getTokenType());
+  }
+
+  @Test
+  void isActiveShouldReturnTrueIfTokenIsNotExpired(){
+    TokenObject input = Mockito.mock(TokenObject.class);
+    TokenAuth token = Mockito.mock(TokenAuth.class);
+    Instant tokenExpireTime = NOW.toInstant().plus(5, ChronoUnit.MINUTES);
+
+    Mockito.when(input.getTokenValue()).thenReturn(TOKEN_VALUE);
+    Mockito.when(input.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, TOKEN_VALUE))
+        .thenReturn(Optional.of(token));
+    Mockito.when(token.getExpiredDateTime()).thenReturn(tokenExpireTime);
+    Mockito.when(clock.instant()).thenReturn(NOW.toInstant());
+
+    boolean result = this.service.isActive(input);
+
+    assertTrue(result);
+    assertEquals(tokenExpireTime, token.getExpiredDateTime());
+    assertFalse(NOW.toInstant().isAfter(tokenExpireTime));
+  }
+
+  @Test
+  void isActiveShouldReturnFalseIfTokenIsExpired(){
+    TokenObject input = Mockito.mock(TokenObject.class);
+    TokenAuth token = Mockito.mock(TokenAuth.class);
+    Instant tokenExpireTime = NOW.toInstant().minus(5, ChronoUnit.MINUTES);
+
+    Mockito.when(input.getTokenValue()).thenReturn(TOKEN_VALUE);
+    Mockito.when(input.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, TOKEN_VALUE))
+        .thenReturn(Optional.of(token));
+    Mockito.when(token.getExpiredDateTime()).thenReturn(tokenExpireTime);
+    Mockito.when(clock.instant()).thenReturn(NOW.toInstant());
+
+    boolean result = this.service.isActive(input);
+
+    assertFalse(result);
+    assertEquals(tokenExpireTime, token.getExpiredDateTime());
+    assertTrue(NOW.toInstant().isAfter(tokenExpireTime));
+  }
+
+  @Test
+  void isActiveShouldThrowExceptionWhenTokenIsNotFound(){
+    TokenObject input = Mockito.mock(TokenObject.class);
+    Mockito.when(input.getTokenValue()).thenReturn(TOKEN_VALUE);
+    Mockito.when(input.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, TOKEN_VALUE))
+        .thenReturn(Optional.of(null));
+
+    Exception result = assertThrows(TokenAuthNotFoundException.class,
+              () -> this.service.isActive(input));
+
+    Mockito.verify(this.repo, Mockito.times(1))
+        .getTokenByEmailAndTokenValue(Mockito.anyString(), Mockito.anyString());
+    assertEquals(String.format(TOKEN_NOT_FOUND_MESSAGE, TOKEN_EMAIL, TOKEN_VALUE), result.getMessage());
   }
 
   private TokenObject mockTokenObjectFactory(TokenAuthDTO dto){
