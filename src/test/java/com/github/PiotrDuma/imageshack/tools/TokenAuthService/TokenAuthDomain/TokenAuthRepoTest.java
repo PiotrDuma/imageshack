@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -66,5 +67,31 @@ class TokenAuthRepoTest {
     List<TokenAuth> result = repo.getExpiredTokens(now);
 
     assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void getTokenByEmailAndTokenValueShouldReturnEmptyOptionalWhenEmailIsIncorrect(){
+    String email = "123" + TOKEN_EMAIL;
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndTokenValue(email, TOKEN_VALUE);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void getTokenByEmailAndTokenValueShouldReturnEmptyOptionalWhenValueIsIncorrect(){
+    String value = "123" + TOKEN_VALUE;
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, value);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void getTokenByEmailAndTokenValueShouldReturnTokenOptional(){
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, TOKEN_VALUE);
+
+    assertTrue(result.isPresent());
+    assertEquals(TOKEN_EMAIL, result.get().getEmail());
+    assertEquals(TOKEN_VALUE, result.get().getToken());
+    assertEquals(TOKEN_AUTH_TYPE, result.get().getTokenAuthType());
   }
 }
