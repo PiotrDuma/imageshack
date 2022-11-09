@@ -18,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 class TokenAuthServiceImpl implements TokenAuthService {
-    private static final String NOT_FOUND_BY_EMAIL = "TOKEN NOT FOUND BY EMAIL: %s";
+    private static final String NOT_FOUND = "Token not found.";
+    private static final String NOT_FOUND_BY_EMAIL = "Token not found by email: %s";
+    private static final String NOT_FOUND_BY_EMAIL_AND_VALUE = "Token not found. Cannot find "
+        + "token with email address: %s and value: %s.";
     private final TokenAuthRepo tokenAuthRepo;
     private final TokenObjectFactory tokenObjectFactory;
     private final Clock clock;
@@ -44,7 +47,15 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public boolean isActive(TokenObject tokenObject) {
-        return false;
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndTokenValue(
+            tokenObject.getEmail(), tokenObject.getTokenValue());
+        if(!token.isPresent()){
+            throw new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL_AND_VALUE,
+                tokenObject.getEmail(), tokenObject.getTokenValue()));
+        } else if (!token.get().getTokenAuthType().equals(tokenObject.getTokenType())) {
+            throw new TokenAuthNotFoundException(NOT_FOUND);
+        }
+        return token.get().getExpiredDateTime().isAfter(clock.instant())?true:false;
     }
 
     @Override
