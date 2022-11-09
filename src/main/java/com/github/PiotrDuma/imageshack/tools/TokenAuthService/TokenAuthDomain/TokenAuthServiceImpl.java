@@ -60,7 +60,13 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public Instant expiresAt(TokenObject tokenObject) throws TokenAuthNotFoundException {
-        return null;
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndTokenValue(
+            tokenObject.getEmail(), tokenObject.getTokenValue());
+        if(!token.isPresent()){
+            throw new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL_AND_VALUE,
+                tokenObject.getEmail(), tokenObject.getTokenValue()));
+        }
+        return token.get().getExpiredDateTime();
     }
 
     @Override
