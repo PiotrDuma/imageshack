@@ -18,4 +18,7 @@ interface TokenAuthRepo extends JpaRepository<TokenAuth, Long> {
     @Query("SELECT t FROM TokenAuth t WHERE t.email = :email AND t.token = :value")
     Optional<TokenAuth> getTokenByEmailAndTokenValue(@Param("email") String email,
                                     @Param("value") String tokenValue);
+    @Query("SELECT t FROM TokenAuth t WHERE t.email = :email AND t.token = :value AND t.tokenAuthType = :type")
+    Optional<TokenAuth> getTokenByEmailAndValueAndType(@Param("email") String email,
+        @Param("value") String tokenValue, @Param("type") TokenAuthType tokenType);
 }
