@@ -16,9 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 //TODO: REFACTORING, ADD TESTS
 @Service
-@Transactional(readOnly = true)
+@Transactional
 class TokenAuthServiceImpl implements TokenAuthService {
-    private static final String NOT_FOUND = "Token not found.";
     private static final String NOT_FOUND_BY_EMAIL = "Token not found by email: %s";
     private static final String NOT_FOUND_BY_EMAIL_AND_VALUE = "Token not found. Cannot find "
         + "token with email address: %s and value: %s.";
@@ -35,7 +34,7 @@ class TokenAuthServiceImpl implements TokenAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public TokenObject createToken(TokenAuthDTO tokenAuthDTO) {
         TokenObject tokenObject = this.tokenObjectFactory.getTokenObject(tokenAuthDTO);
         Instant currentTime = this.clock.instant();
@@ -46,22 +45,22 @@ class TokenAuthServiceImpl implements TokenAuthService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isActive(TokenObject tokenObject) {
-        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndTokenValue(
-            tokenObject.getEmail(), tokenObject.getTokenValue());
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndValueAndType(
+            tokenObject.getEmail(), tokenObject.getTokenValue(), tokenObject.getTokenType());
         if(!token.isPresent()){
             throw new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL_AND_VALUE,
                 tokenObject.getEmail(), tokenObject.getTokenValue()));
-        } else if (!token.get().getTokenAuthType().equals(tokenObject.getTokenType())) {
-            throw new TokenAuthNotFoundException(NOT_FOUND);
         }
         return token.get().getExpiredDateTime().isAfter(clock.instant())?true:false;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Instant expiresAt(TokenObject tokenObject) throws TokenAuthNotFoundException {
-        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndTokenValue(
-            tokenObject.getEmail(), tokenObject.getTokenValue());
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndValueAndType(
+            tokenObject.getEmail(), tokenObject.getTokenValue(), tokenObject.getTokenType());
         if(!token.isPresent()){
             throw new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL_AND_VALUE,
                 tokenObject.getEmail(), tokenObject.getTokenValue()));
@@ -71,12 +70,19 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public void delete(TokenObject tokenObject) throws TokenAuthNotFoundException {
-
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByEmailAndValueAndType(
+            tokenObject.getEmail(), tokenObject.getTokenValue(), tokenObject.getTokenType());
+        if(!token.isPresent()){
+            throw new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL_AND_VALUE,
+                tokenObject.getEmail(), tokenObject.getTokenValue()));
+        }
+        this.tokenAuthRepo.delete(token.get());
     }
 
     @Override
     public void delete(String email) throws TokenAuthNotFoundException {
-
+        this.tokenAuthRepo.getTokensByEmail(email).stream()
+            .forEach(this.tokenAuthRepo::delete);
     }
 
     @Override
@@ -122,7 +128,11 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public boolean present(TokenObject tokenObject) {
-        return false;
+        return this.tokenAuthRepo.getTokenByEmailAndValueAndType(
+            tokenObject.getEmail(),
+            tokenObject.getTokenValue(),
+            tokenObject.getTokenType()
+        ).isPresent();
     }
 
     //    @Override
