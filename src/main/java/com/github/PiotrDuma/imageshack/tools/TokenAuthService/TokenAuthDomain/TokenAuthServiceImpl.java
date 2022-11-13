@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 class TokenAuthServiceImpl implements TokenAuthService {
-    private static final String NOT_FOUND_BY_EMAIL = "Token not found by email: %s";
+    private static final String NOT_FOUND = "Token not found.";
     private static final String NOT_FOUND_BY_EMAIL_AND_VALUE = "Token not found. Cannot find "
         + "token with email address: %s and value: %s.";
     private final TokenAuthRepo tokenAuthRepo;
@@ -81,34 +81,38 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public void delete(String email) throws TokenAuthNotFoundException {
-        this.tokenAuthRepo.getTokensByEmail(email).stream()
-            .forEach(this.tokenAuthRepo::delete);
+        this.tokenAuthRepo.deleteByEmail(email);
     }
 
     @Override
     public void delete(String tokenValue, TokenAuthType tokenType)
         throws TokenAuthNotFoundException {
-
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByValue(tokenValue);
+        if(!token.isPresent() || !token.get().getTokenType().equals(tokenType)){
+            throw new TokenAuthNotFoundException(NOT_FOUND);
+        }
+        this.tokenAuthRepo.delete(token.get());
     }
 
     @Override
     public void deleteExpired() {
-
+        this.tokenAuthRepo.deleteExpiredTokens(clock.instant());
     }
 
     @Override
     public void deleteExpired(String email) {
-
+        this.tokenAuthRepo.deleteExpiredTokens(clock.instant(), email);
     }
 
     @Override
     public void deleteExpired(TokenAuthType tokenType) {
-
+        this.tokenAuthRepo.deleteExpiredTokens(clock.instant(), tokenType);
     }
 
     @Override
     public Optional<TokenObject> findToken(String tokenValue) {
-        return Optional.empty();
+        Optional<TokenAuth> token = this.tokenAuthRepo.getTokenByValue(tokenValue);
+        return token.isPresent()?Optional.of((TokenObject) token.get()):Optional.empty();
     }
 
     @Override
@@ -138,64 +142,4 @@ class TokenAuthServiceImpl implements TokenAuthService {
             tokenObject.getTokenType()
         ).isPresent();
     }
-
-    //    @Override
-//    public TokenAuthDTO createToken(String email, TokenAuthType tokenAuthType, int activeTimeInMinutes) {
-//        LocalDateTime created = LocalDateTime.now();
-//        LocalDateTime expired = created.plusMinutes(30);
-//        TokenAuth tokenAuth = new TokenAuth(email, tokenGenerator.generate(), tokenAuthType,
-//                created, expired);
-//        this.tokenAuthRepo.save(tokenAuth);
-//        return new TokenAuthDTO(tokenAuth);
-//    }
-
-//    @Override
-//    public boolean isTokenActive(String email, String token, TokenAuthType tokenAuthType)
-//                                    throws TokenAuthNotFoundException {
-//        TokenAuth tokenAuth = tokenAuthRepo.getTokenByEmail(email)
-//                .orElseThrow(() -> new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL, email)));
-//
-//        return tokenAuth.getToken().equals(token)&&tokenAuth.getTokenAuthType().equals(tokenAuthType)?true:false;
-//    }
-
-//    @Override
-//    public <T extends AbstractTokenObject> T createToken(String email, T tokenObject) {
-//        return null;
-//    }
-//
-//    @Override
-//    public boolean isActive(String email, String token, TokenAuthType tokenAuthType) {
-//        return false;
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void deleteToken(String email, TokenAuthType tokenAuthType) {
-//        List<TokenAuth> tokens = this.tokenAuthRepo.getTokensByEmail(email);
-//        tokens.stream().filter(e -> e.getTokenAuthType().equals(tokenAuthType))
-//                .forEach(k -> this.tokenAuthRepo.delete(k));
-//    }
-//
-//    @Override
-//    public <T extends AbstractTokenObject> T findToken(String tokenValue) {
-//        return null;
-//    }
-//
-////    @Override
-////    public TokenAuthDTO findToken(String email, TokenAuthType tokenAuthType) {
-////        TokenAuth token = this.tokenAuthRepo.getTokenByEmail(email)
-////                .orElseThrow(() ->new TokenAuthNotFoundException(String.format(NOT_FOUND_BY_EMAIL, email)));
-////        return new TokenAuthDTO(token);
-////    }
-//
-//    @Override
-//    public Stream<TokenAuthDTO> getAllTokensByEmail(String email) {
-//        return this.tokenAuthRepo.getTokensByEmail(email).stream().map(e -> new TokenAuthDTO((e)));
-//    }
-//
-//    @Override
-//    public Stream<TokenAuthDTO> getAllExpiredTokens() {
-//        return this.tokenAuthRepo.getExpiredTokens(Instant.now())
-//            .map(elem -> new TokenAuthDTO(elem));
-//    }
 }

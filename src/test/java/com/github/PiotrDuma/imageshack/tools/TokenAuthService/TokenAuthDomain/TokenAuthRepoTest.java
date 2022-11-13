@@ -53,6 +53,43 @@ class TokenAuthRepoTest {
   }
 
   @Test
+  void getAllTokensTest(){
+    TokenAuth token1 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(30, ChronoUnit.MINUTES));
+
+    TokenAuth token2 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(30, ChronoUnit.MINUTES));
+
+    repo.save(token1);
+    repo.save(token2);
+
+    List<TokenAuth> result = this.repo.getAllTokens();
+
+    assertEquals(3, result.size());
+    assertTrue(result.containsAll(List.of(token1, token2, this.exampleObject)));
+  }
+
+  @Test
+  void deleteByEmailTest(){
+    TokenAuth token1 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(60, ChronoUnit.MINUTES));
+    TokenAuth token2 = new TokenAuth("123" + TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(30, ChronoUnit.MINUTES));
+
+    this.repo.save(token1);
+    this.repo.save(token2);
+
+    this.repo.deleteByEmail(TOKEN_EMAIL);
+
+    assertEquals(1, repo.getAllTokens().size());
+    assertTrue(repo.getAllTokens().contains(token2));
+  }
+
+  @Test
   void shouldReturnOneExpiredTokenWhenIsOutOfDate() {
     Instant now = this.clock.instant().plus(31, ChronoUnit.MINUTES);
     List<TokenAuth> result = repo.getExpiredTokens(now);
@@ -131,5 +168,97 @@ class TokenAuthRepoTest {
         type);
 
     assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void getTokenByValueShouldReturnOptionalOfTokenAuth(){
+    Optional<TokenAuth> result = this.repo.getTokenByValue(TOKEN_VALUE);
+
+    assertTrue(result.isPresent());
+    assertEquals(TOKEN_VALUE, result.get().getTokenValue());
+  }
+
+  @Test
+  void getTokenByValueShouldReturnEmptyOptionalWhenNothingWasFound(){
+    Optional<TokenAuth> result = this.repo.getTokenByValue("123" + TOKEN_VALUE);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void deleteExpiredTokensTest(){
+    Instant futureTimestamp = clock.instant().plus(45, ChronoUnit.MINUTES);
+    TokenAuth token1 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(60, ChronoUnit.MINUTES));
+    TokenAuth token2 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        futureTimestamp);
+
+    repo.save(token1);
+    repo.save(token2);
+
+    this.repo.deleteExpiredTokens(futureTimestamp);
+
+    assertTrue(this.repo.getExpiredTokens(futureTimestamp).isEmpty());
+    assertEquals(2, this.repo.getAllTokens().size());
+  }
+
+  @Test
+  void deleteExpiredTokensByEmailTest(){
+    Instant futureTimestamp = clock.instant().plus(45, ChronoUnit.MINUTES);
+    //token1 and token2 are not expired
+    TokenAuth token1 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(60, ChronoUnit.MINUTES));
+
+    TokenAuth token2 = new
+
+        TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        futureTimestamp);
+
+    //token2 expired
+    TokenAuth token3 = new TokenAuth("123" + TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        this.clock.instant().plus(30, ChronoUnit.MINUTES));
+
+    repo.save(token1);
+    repo.save(token2);
+    repo.save(token3);
+
+    this.repo.deleteExpiredTokens(futureTimestamp, TOKEN_EMAIL);
+
+    assertFalse(this.repo.getExpiredTokens(futureTimestamp).isEmpty());
+    assertEquals(3, this.repo.getAllTokens().size());
+    assertTrue(this.repo.getAllTokens().containsAll(List.of(token1,token2, token3)));
+  }
+
+  @Test
+  void deleteExpiredTokensByTokenTypeTest(){
+    Instant futureTimestamp = clock.instant().plus(45, ChronoUnit.MINUTES);
+    //expired, invalid type
+    TokenAuth token1 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TokenAuthType.ACCOUNT_CONFIRMATION,
+        this.clock.instant(),
+        this.clock.instant().plus(30, ChronoUnit.MINUTES));
+    //not expired, valid type
+    TokenAuth token2 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE,
+        this.clock.instant(),
+        futureTimestamp);
+
+    //not expired, invalid type
+    TokenAuth token3 = new TokenAuth(TOKEN_EMAIL, TOKEN_VALUE, TokenAuthType.ACCOUNT_CONFIRMATION,
+        this.clock.instant(),
+        this.clock.instant().plus(60, ChronoUnit.MINUTES));
+
+    repo.save(token1);
+    repo.save(token2);
+    repo.save(token3);
+
+    this.repo.deleteExpiredTokens(futureTimestamp, TOKEN_AUTH_TYPE);
+
+    assertFalse(this.repo.getExpiredTokens(futureTimestamp).isEmpty());
+    assertEquals(3, this.repo.getAllTokens().size());
+    assertTrue(this.repo.getAllTokens().containsAll(List.of(token1,token2, token3)));
   }
 }

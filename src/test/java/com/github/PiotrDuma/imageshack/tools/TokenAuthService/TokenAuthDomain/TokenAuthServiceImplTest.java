@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -30,6 +29,7 @@ class TokenAuthServiceImplTest {
   private static final String TOKEN_EMAIL = "email@imageshack.com";
   private static final TokenAuthType TOKEN_TYPE = TokenAuthType.ACCOUNT_CONFIRMATION;
   private static final String TOKEN_VALUE = "1a2b3c";
+  private static final String NOT_FOUND = "Token not found.";
   private static final String TOKEN_NOT_FOUND_VALUES = "Token not found. Cannot find token with "
       + "email address: %s and value: %s.";
   @Mock
@@ -219,21 +219,106 @@ class TokenAuthServiceImplTest {
   }
 
   @Test
+  void deleteWithTokenValueAndTokenTypeShouldInvokeRepoWhenTokenIsValid(){
+    TokenAuth token = Mockito.mock(TokenAuth.class);
+
+    Mockito.when(token.getTokenType()).thenReturn(TOKEN_TYPE);
+    Mockito.when(this.repo.getTokenByValue(TOKEN_VALUE)).thenReturn(Optional.of(token));
+
+    this.service.delete(TOKEN_VALUE, TOKEN_TYPE);
+
+    Mockito.verify(this.repo, Mockito.times(1)).delete(token);
+  }
+
+  @Test
+  void deleteWithTokenValueAndTokenTypeShouldThrowWhenTokenIsNotFound(){
+    Mockito.when(this.repo.getTokenByValue(TOKEN_VALUE)).thenReturn(Optional.empty());
+
+    Exception result = assertThrows(TokenAuthNotFoundException.class,
+        () -> this.service.delete(TOKEN_VALUE, TOKEN_TYPE));
+
+    assertEquals(NOT_FOUND, result.getMessage());
+  }
+
+  @Test
+  void deleteWithTokenValueAndTokenTypeShouldThrowWhenTokenIsInvalidType(){
+    TokenAuth token = Mockito.mock(TokenAuth.class);
+
+    Mockito.when(token.getTokenType()).thenReturn(TokenAuthType.PASSWORD_RESET);
+    Mockito.when(this.repo.getTokenByValue(TOKEN_VALUE)).thenReturn(Optional.of(token));
+
+    Exception result = assertThrows(TokenAuthNotFoundException.class,
+        () -> this.service.delete(TOKEN_VALUE, TOKEN_TYPE));
+
+    assertEquals(NOT_FOUND, result.getMessage());
+  }
+
+  @Test
   void deleteByEmailShouldRemoveAllTokensReturnedFromRepo(){
-    TokenAuth token1 = Mockito.mock(TokenAuth.class);
-    TokenAuth token2 = Mockito.mock(TokenAuth.class);
-    TokenAuth token3 = Mockito.mock(TokenAuth.class);
-
-    List<TokenAuth> output = List.of(token1, token2, token3);
-
-    Mockito.when(this.repo.getTokensByEmail(TOKEN_EMAIL)).thenReturn(output);
-
     this.service.delete(TOKEN_EMAIL);
-    Mockito.verify(this.repo, Mockito.times(1)).getTokensByEmail(Mockito.anyString());
-    Mockito.verify(this.repo, Mockito.times(3)).delete(Mockito.any(TokenAuth.class));
-    Mockito.verify(this.repo, Mockito.times(1)).delete(token1);
-    Mockito.verify(this.repo, Mockito.times(1)).delete(token2);
-    Mockito.verify(this.repo, Mockito.times(1)).delete(token3);
+    Mockito.verify(this.repo, Mockito.times(1)).deleteByEmail(TOKEN_EMAIL);
+  }
+
+  @Test
+  void deleteExpiredTokensShouldInvokeRepoMethodWithValidArguments(){
+    Mockito.when(this.clock.instant()).thenReturn(NOW.toInstant());
+
+    this.service.deleteExpired();
+
+    ArgumentCaptor<Instant> argument = ArgumentCaptor.forClass(Instant.class);
+    Mockito.verify(this.repo, Mockito.times(1)).deleteExpiredTokens(argument.capture());
+
+    assertEquals(NOW.toInstant(), argument.getValue());
+  }
+
+  @Test
+  void deleteExpiredTokensWithEmailShouldInvokeRepoMethodWithValidArguments(){
+    Mockito.when(this.clock.instant()).thenReturn(NOW.toInstant());
+
+    this.service.deleteExpired(TOKEN_EMAIL);
+
+    ArgumentCaptor<Instant> argument = ArgumentCaptor.forClass(Instant.class);
+    Mockito.verify(this.repo, Mockito.times(1))
+        .deleteExpiredTokens(argument.capture(), Mockito.anyString());
+
+    assertEquals(NOW.toInstant(), argument.getValue());
+  }
+
+  @Test
+  void deleteExpiredTokensWithTokenTypeShouldInvokeRepoMethodWithValidArguments(){
+    Mockito.when(this.clock.instant()).thenReturn(NOW.toInstant());
+
+    this.service.deleteExpired(TOKEN_TYPE);
+
+    ArgumentCaptor<Instant> argument = ArgumentCaptor.forClass(Instant.class);
+    Mockito.verify(this.repo, Mockito.times(1))
+        .deleteExpiredTokens(argument.capture(), Mockito.any(TokenAuthType.class));
+
+    assertEquals(NOW.toInstant(), argument.getValue());
+  }
+
+  @Test
+  void findTokenByValueShouldReturnEmptyObjectWhenTokenNotFound(){
+    Mockito.when(this.repo.getTokenByValue(Mockito.anyString())).thenReturn(Optional.empty());
+
+    Optional<TokenObject> result = this.service.findToken(Mockito.anyString());
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void findTokenByValueShouldReturnOptionalOfTokenObject(){
+    TokenAuth token = Mockito.mock(TokenAuth.class);
+
+    Mockito.when(token.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(token.getTokenValue()).thenReturn(TOKEN_VALUE);
+    Mockito.when(this.repo.getTokenByValue(Mockito.anyString())).thenReturn(Optional.of(token));
+
+    Optional<TokenObject> result = this.service.findToken(Mockito.anyString());
+
+    assertTrue(result.isPresent());
+    assertEquals(TOKEN_EMAIL, result.get().getEmail());
+    assertEquals(TOKEN_VALUE, result.get().getTokenValue());
   }
 
   @Test
