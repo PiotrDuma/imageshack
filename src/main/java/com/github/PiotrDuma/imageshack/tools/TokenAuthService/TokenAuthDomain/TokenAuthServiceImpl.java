@@ -113,17 +113,21 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public Stream<TokenObject> getAllTokensByEmail(String email) {
-        return null;
+        return this.tokenAuthRepo.getTokensByEmail(email).stream()
+            .map(elem ->  elem); //redundant casting(?), but required mapping
     }
 
     @Override
     public Stream<TokenObject> getAllExpiredTokens() {
-        return null;
+        return this.tokenAuthRepo.getExpiredTokens(clock.instant())
+            .stream().map(elem -> elem);
     }
 
     @Override
     public Stream<TokenObject> getAllExpiredTokens(String email) {
-        return null;
+        return this.tokenAuthRepo.getTokensByEmail(email)
+            .stream().filter(e -> e.getExpiredDateTime().isAfter(clock.instant()))
+            .map(elem -> elem);
     }
 
     @Override

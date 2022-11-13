@@ -70,7 +70,7 @@ class TokenAuthRepoTest {
   }
 
   @Test
-  void getTokenByEmailAndTokenValueShouldReturnEmptyOptionalWhenEmailIsIncorrect(){
+  void getTokenByEmailAndTokenValueShouldReturnEmptyOptionalWhenEmailIsIncorrect() {
     String email = "123" + TOKEN_EMAIL;
     Optional<TokenAuth> result = this.repo.getTokenByEmailAndTokenValue(email, TOKEN_VALUE);
 
@@ -78,7 +78,7 @@ class TokenAuthRepoTest {
   }
 
   @Test
-  void getTokenByEmailAndTokenValueShouldReturnEmptyOptionalWhenValueIsIncorrect(){
+  void getTokenByEmailAndTokenValueShouldReturnEmptyOptionalWhenValueIsIncorrect() {
     String value = "123" + TOKEN_VALUE;
     Optional<TokenAuth> result = this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, value);
 
@@ -86,45 +86,49 @@ class TokenAuthRepoTest {
   }
 
   @Test
-  void getTokenByEmailAndTokenValueShouldReturnTokenOptional(){
+  void getTokenByEmailAndTokenValueShouldReturnTokenOptional() {
     Optional<TokenAuth> result = this.repo.getTokenByEmailAndTokenValue(TOKEN_EMAIL, TOKEN_VALUE);
 
     assertTrue(result.isPresent());
     assertEquals(TOKEN_EMAIL, result.get().getEmail());
-    assertEquals(TOKEN_VALUE, result.get().getToken());
-    assertEquals(TOKEN_AUTH_TYPE, result.get().getTokenAuthType());
+    assertEquals(TOKEN_VALUE, result.get().getTokenValue());
+    assertEquals(TOKEN_AUTH_TYPE, result.get().getTokenType());
   }
 
   @Test
-  void getTokenByEmailValueAndTypeShouldReturnValidOptional(){
-    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(TOKEN_EMAIL, TOKEN_VALUE, TOKEN_AUTH_TYPE);
+  void getTokenByEmailValueAndTypeShouldReturnValidOptional() {
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(TOKEN_EMAIL, TOKEN_VALUE,
+        TOKEN_AUTH_TYPE);
 
     assertTrue(result.isPresent());
     assertEquals(TOKEN_EMAIL, result.get().getEmail());
-    assertEquals(TOKEN_VALUE, result.get().getToken());
-    assertEquals(TOKEN_AUTH_TYPE, result.get().getTokenAuthType());
+    assertEquals(TOKEN_VALUE, result.get().getTokenValue());
+    assertEquals(TOKEN_AUTH_TYPE, result.get().getTokenType());
   }
 
   @Test
-  void getTokenByEmailValueAndTypeShouldReturnEmptyOptionalWhenEmailIsInvalid(){
+  void getTokenByEmailValueAndTypeShouldReturnEmptyOptionalWhenEmailIsInvalid() {
     String email = "123" + TOKEN_EMAIL;
-    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(email, TOKEN_VALUE, TOKEN_AUTH_TYPE);
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(email, TOKEN_VALUE,
+        TOKEN_AUTH_TYPE);
 
     assertTrue(result.isEmpty());
   }
 
   @Test
-  void getTokenByEmailValueAndTypeShouldReturnEmptyOptionalWhenValueIsInvalid(){
+  void getTokenByEmailValueAndTypeShouldReturnEmptyOptionalWhenValueIsInvalid() {
     String value = "123" + TOKEN_VALUE;
-    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(TOKEN_EMAIL, value, TOKEN_AUTH_TYPE);
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(TOKEN_EMAIL, value,
+        TOKEN_AUTH_TYPE);
 
     assertTrue(result.isEmpty());
   }
 
   @Test
-  void getTokenByEmailValueAndTypeShouldReturnEmptyOptionalWhenTypeIsInvalid(){
+  void getTokenByEmailValueAndTypeShouldReturnEmptyOptionalWhenTypeIsInvalid() {
     TokenAuthType type = TokenAuthType.ACCOUNT_CONFIRMATION;
-    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(TOKEN_EMAIL, TOKEN_VALUE, type);
+    Optional<TokenAuth> result = this.repo.getTokenByEmailAndValueAndType(TOKEN_EMAIL, TOKEN_VALUE,
+        type);
 
     assertTrue(result.isEmpty());
   }

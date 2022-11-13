@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +22,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "tokens")
-class TokenAuth implements Serializable {
+class TokenAuth implements Serializable, TokenObject {
 
   @Id
   @Column(name = "token_id", nullable = false, unique = true)
@@ -74,7 +75,7 @@ class TokenAuth implements Serializable {
     this.expiredDateTime = expiredDateTime;
   }
 
-  public Long getId() {
+  protected Long getId() {
     return id;
   }
 
@@ -90,13 +91,14 @@ class TokenAuth implements Serializable {
     this.email = email;
   }
 
-  public TokenAuthType getTokenAuthType() {
-    return tokenAuthType;
-  }
-
-  public void setTokenAuthType(
+  public void setTokenType(
       TokenAuthType tokenAuthType) {
     this.tokenAuthType = tokenAuthType;
+  }
+
+  @Override
+  public TokenAuthType getTokenType() {
+    return this.tokenAuthType;
   }
 
   public Instant getCreateDateTime() {
@@ -115,12 +117,18 @@ class TokenAuth implements Serializable {
     this.expiredDateTime = expiredDateTime;
   }
 
-  public String getToken() {
+  public void setTokenValue(String token) {
+    this.token = token;
+  }
+
+  @Override
+  public String getTokenValue() {
     return token;
   }
 
-  public void setToken(String token) {
-    this.token = token;
+  @Override
+  public int getTokenActiveTimeMinutes() {
+    return (int)ChronoUnit.MINUTES.between(createDateTime, expiredDateTime);
   }
 
   @Override

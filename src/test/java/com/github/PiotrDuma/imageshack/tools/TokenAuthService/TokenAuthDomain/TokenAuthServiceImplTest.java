@@ -11,8 +11,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +55,7 @@ class TokenAuthServiceImplTest {
   void setUp(){
     this.service = new TokenAuthServiceImpl(repo, tokenObjectFactory, clock);
   }
-//TODO: add time/clock setup, add token values' validation
+
   @Test
   void createTokenMethodShouldCallRepoAndReturnValidObject(){
     TokenAuthDTO dto = new TokenAuthDTO(TOKEN_EMAIL, TOKEN_TYPE);
@@ -230,6 +234,79 @@ class TokenAuthServiceImplTest {
     Mockito.verify(this.repo, Mockito.times(1)).delete(token1);
     Mockito.verify(this.repo, Mockito.times(1)).delete(token2);
     Mockito.verify(this.repo, Mockito.times(1)).delete(token3);
+  }
+
+  @Test
+  void getAllExpiredTokensByEmailShouldReturnExactNumberOfTokens(){
+    TokenAuth token1 = Mockito.mock(TokenAuth.class);
+    TokenAuth token2 = Mockito.mock(TokenAuth.class);
+    TokenAuth token3 = Mockito.mock(TokenAuth.class);
+    TokenAuth token4 = Mockito.mock(TokenAuth.class);
+
+    //token2 and token3 expired. token4 should be valid.
+    Mockito.when(token1.getExpiredDateTime()).thenReturn(NOW.toInstant().minus(3,ChronoUnit.MINUTES));
+    Mockito.when(token2.getExpiredDateTime()).thenReturn(NOW.toInstant().plus(5,ChronoUnit.MINUTES));
+    Mockito.when(token3.getExpiredDateTime()).thenReturn(NOW.toInstant().plus(7,ChronoUnit.MINUTES));
+    Mockito.when(token4.getExpiredDateTime()).thenReturn(NOW.toInstant());
+    Mockito.when(this.repo.getTokensByEmail(Mockito.anyString())).thenReturn(List.of(token1, token2, token3, token4));
+    Mockito.when(this.clock.instant()).thenReturn(NOW.toInstant());
+
+    Supplier<Stream<TokenObject>> supplier = () -> this.service.getAllExpiredTokens(Mockito.anyString());
+
+    assertEquals(2, supplier.get().count());
+  }
+
+  @Test
+  void getAllExpiredTokensShouldReturnExactNumberOfTokens(){
+    TokenAuth token1 = Mockito.mock(TokenAuth.class);
+    TokenAuth token2 = Mockito.mock(TokenAuth.class);
+
+    Mockito.when(this.repo.getExpiredTokens(NOW.toInstant())).thenReturn(List.of(token1, token2));
+    Mockito.when(this.clock.instant()).thenReturn(NOW.toInstant());
+
+    Supplier<Stream<TokenObject>> supplier = () -> this.service.getAllExpiredTokens();
+
+    assertEquals(2, supplier.get().count());
+  }
+
+  @Test
+  void getAllExpiredTokensShouldReturnEmptyStreamWhenRepoReturnsEmptyList(){
+    List<TokenAuth> emptyList = new ArrayList<>();
+
+    Mockito.when(this.repo.getExpiredTokens(NOW.toInstant())).thenReturn(emptyList);
+    Mockito.when(this.clock.instant()).thenReturn(NOW.toInstant());
+
+    Supplier<Stream<TokenObject>> supplier = () -> this.service.getAllExpiredTokens();
+
+    assertEquals(0, supplier.get().count());
+  }
+
+  @Test
+  void getAllTokensByEmailShouldReturnExactNumberOfTokensWithValidEmail(){
+    TokenAuth token1 = Mockito.mock(TokenAuth.class);
+    TokenAuth token2 = Mockito.mock(TokenAuth.class);
+    TokenAuth token3 = Mockito.mock(TokenAuth.class);
+
+    Mockito.when(token1.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(token2.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(token3.getEmail()).thenReturn(TOKEN_EMAIL);
+    Mockito.when(this.repo.getTokensByEmail(Mockito.anyString())).thenReturn(List.of(token1, token2, token3));
+
+    Supplier<Stream<TokenObject>> supplier = () -> this.service.getAllTokensByEmail(Mockito.anyString());
+
+    assertEquals(3, supplier.get().count());
+    assertTrue(supplier.get().allMatch(elem -> elem.getEmail().equals(TOKEN_EMAIL)));
+  }
+
+  @Test
+  void getAllTokensByEmailShouldReturnEmptyStreamWhenRepoReturnsEmptyList(){
+    List<TokenAuth> emptyList = new ArrayList<>();
+
+    Mockito.when(this.repo.getTokensByEmail(Mockito.anyString())).thenReturn(emptyList);
+
+    Supplier<Stream<TokenObject>> supplier = () -> this.service.getAllTokensByEmail(TOKEN_EMAIL);
+
+    assertEquals(0, supplier.get().count());
   }
 
   @Test
