@@ -11,8 +11,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@Qualifier("devSecurityConfiguration")
+@Service("devSecurityConfiguration")
 @Profile({"dev", "test"})
 class SystemSecurityUserProviderConfigurationDev {
   private final UserService userService;
