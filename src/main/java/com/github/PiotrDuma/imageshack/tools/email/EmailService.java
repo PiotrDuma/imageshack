@@ -1,5 +1,8 @@
 package com.github.PiotrDuma.imageshack.tools.email;
 
+import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
+
 public interface EmailService {
-  boolean sendMail(String to, String subject, String message, boolean isHTML);
+  void sendMail(String to, String subject, String message, boolean isHTML)
+      throws InvalidEmailAddressException, EmailSendingException;
 }

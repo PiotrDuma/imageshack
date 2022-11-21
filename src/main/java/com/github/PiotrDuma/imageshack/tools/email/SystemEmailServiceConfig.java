@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @Configuration
-public class SystemEmailServiceConfig {
+class SystemEmailServiceConfig {
   private static final String EMAIL_HOST = "smtp-mail.outlook.com";
   private static final int EMAIL_PORT = 587;
   private static final String EMAIL_USERNAME = "imageshack-system.message@outlook.com";
