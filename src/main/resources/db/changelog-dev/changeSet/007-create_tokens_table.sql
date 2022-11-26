@@ -3,7 +3,7 @@
 
 CREATE TABLE tokens(
   token_id BIGINT NOT NULL AUTO_INCREMENT,
-  email varchar(255) UNIQUE NOT NULL,
+  email varchar(255) NOT NULL,
   token varchar(32) NOT NULL,
   token_type varchar(255) NOT NULL,
   created DATETIME NOT NULL,
