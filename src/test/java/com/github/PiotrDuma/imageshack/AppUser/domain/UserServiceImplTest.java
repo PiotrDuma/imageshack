@@ -271,4 +271,26 @@ class UserServiceImplTest {
     UserDetailsWrapper result = spy.createNewUser(username, email, password);
     Mockito.verify(spy, Mockito.times(1)).addRole(Mockito.anyLong(), Mockito.any(AppRoleType.class));
   }
+
+  @Test
+  void loadUserWrapperByUsernameShouldOptionalOfWrapper(){
+    UserService spy = Mockito.spy(this.userService);
+    UserDetailsWrapper wrapper = Mockito.mock(UserDetailsWrapper.class);
+    Mockito.doReturn(wrapper).when(spy).loadUserByUsername(Mockito.anyString());
+
+    Optional<UserDetailsWrapper> result = spy.loadUserWrapperByUsername(Mockito.anyString());
+
+    assertTrue(result.isPresent());
+    assertEquals(wrapper, result.get());
+  }
+
+  @Test
+  void loadUserWrapperByUsernameShouldReturnEmptyOptionalWhenNotFound(){
+    UserService spy = Mockito.spy(this.userService);
+    Mockito.doThrow(RuntimeException.class).when(spy).loadUserByUsername(Mockito.anyString());
+
+    Optional<UserDetailsWrapper> result = spy.loadUserWrapperByUsername(Mockito.anyString());
+
+    assertTrue(result.isEmpty());
+  }
 }

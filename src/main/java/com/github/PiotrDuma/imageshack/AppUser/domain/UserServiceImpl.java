@@ -10,6 +10,7 @@ import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.EmailVali
 import com.github.PiotrDuma.imageshack.tools.validators.UsernameValidator.UsernameValidator;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -107,5 +108,17 @@ class UserServiceImpl implements UserService {
     return userRepo.findAllByRole(roleType).stream()
         .map(k -> new UserDetailsWrapper(k))
         .collect(Collectors.toList());
+  }
+
+  //redundant, but avoid propagate class casting.
+  @Override
+  public Optional<UserDetailsWrapper> loadUserWrapperByUsername(String username) {
+    Optional<UserDetailsWrapper> wrapper;
+    try{
+      wrapper = Optional.of((UserDetailsWrapper) loadUserByUsername(username));
+    }catch(Exception ex){
+      return Optional.empty();
+    }
+    return wrapper;
   }
 }
