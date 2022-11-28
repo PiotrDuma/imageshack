@@ -3,10 +3,12 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthNotFoundException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.EmailValidator;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -171,5 +173,25 @@ class TokenAuthFacadeImplTest {
     Mockito.verify(tokenAuthService, Mockito.times(1)).getAllExpiredTokens(EMAIL_DTO);
     Mockito.verify(tokenAuthService, Mockito.times(1)).delete(tokenObject);
     Mockito.verify(tokenAuthService, Mockito.times(1)).delete(tokenObject1);
+  }
+
+  @Test
+  void expiresAtShouldReturnInstant(){
+    TokenObject token = Mockito.mock(TokenObject.class);
+    Instant expected = Instant.ofEpochSecond(12345);
+    Mockito.doReturn(expected).when(this.tokenAuthService).expiresAt(token);
+
+    Instant result = this.facade.expiresAt(token);
+
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void expiresAtShouldThrowWhenTokenNotFound(){
+    Mockito.doThrow(TokenAuthNotFoundException.class).when(this.tokenAuthService)
+        .expiresAt(Mockito.any(TokenObject.class));
+
+    Exception exception = assertThrows(RuntimeException.class,
+        () -> this.facade.expiresAt(Mockito.any(TokenObject.class)));
   }
 }

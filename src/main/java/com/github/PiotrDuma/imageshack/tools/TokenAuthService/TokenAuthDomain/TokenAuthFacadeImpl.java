@@ -5,6 +5,7 @@ import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.To
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.EmailValidator;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
+import java.time.Instant;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,5 +79,10 @@ class TokenAuthFacadeImpl implements TokenAuthFacade {
     if(email == null){
       throw new RuntimeException(MESSAGE_NULL_EMAIL);
     }
+  }
+
+  @Override
+  public Instant expiresAt(TokenObject tokenObject) throws RuntimeException{
+    return this.service.expiresAt(tokenObject);
   }
 }

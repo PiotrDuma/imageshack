@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.tools.TokenAuthService;
 
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
+import java.time.Instant;
 import java.util.stream.Stream;
 
 public interface TokenAuthFacade {
@@ -11,4 +12,5 @@ public interface TokenAuthFacade {
   Stream<TokenObject> find(String tokenValue);
   Stream<TokenObject> findByEmail(String email);
   void deleteExpiredTokens(String email);
+  Instant expiresAt(TokenObject tokenObject) throws RuntimeException;
 }
