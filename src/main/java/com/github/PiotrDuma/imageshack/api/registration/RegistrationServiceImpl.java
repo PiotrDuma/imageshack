@@ -14,6 +14,7 @@ import com.github.PiotrDuma.imageshack.tools.email.EmailService;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +69,7 @@ class RegistrationServiceImpl implements RegistrationService {
 
     String subject = appName + ": account activation";
     TokenObject token = this.tokenFacade.create(new TokenAuthDTO(email, TokenAuthType.ACCOUNT_CONFIRMATION));
-    Instant expirationDate = this.tokenFacade.expiresAt(token); //TODO:
+    Instant expirationDate = getExpirationTimestamp(token);
     String message = registrationMessage.generate(email, user.getUsername(), token.getTokenValue(),
         expirationDate,  false);
     sendEmail(email, subject, message);
@@ -96,5 +97,16 @@ class RegistrationServiceImpl implements RegistrationService {
     }catch(InvalidEmailAddressException ex){
       throw new RegistrationEmailAddressException();
     }
+  }
+
+  private Instant getExpirationTimestamp(TokenObject token){
+    Instant timestamp = null;
+    try{
+      timestamp = this.tokenFacade.expiresAt(token);
+    }catch(Exception ex){
+      //improvised, but still better than sending null
+      timestamp = Instant.now().plus(token.getTokenActiveTimeMinutes(), ChronoUnit.MINUTES);
+    }
+    return timestamp;
   }
 }

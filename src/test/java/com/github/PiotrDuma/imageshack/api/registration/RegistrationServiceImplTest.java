@@ -16,6 +16,7 @@ import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAccountEnabledException.RegistrationAccountEnabledException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
 import com.github.PiotrDuma.imageshack.tools.email.EmailSendingException;
 import com.github.PiotrDuma.imageshack.tools.email.EmailService;
@@ -68,9 +69,13 @@ class RegistrationServiceImplTest {
   @Test
   void sendAccountAuthenticationTokenShouldSendSystemEmailWithValidParameters(){
     UserDetailsWrapper user = getValidatedWrapper();
+    TokenObject token = getCreatedTokenObject();
     String message = "message";
     String subject = APP_NAME + ": account activation";
+    Instant timestamp = Instant.ofEpochSecond(12345);
 
+    when(user.getUsername()).thenReturn("username");
+    when(this.tokenFacade.expiresAt(token)).thenReturn(timestamp);
     when(user.isEnabled()).thenReturn(false);
     when(this.registrationMessage.generate(anyString(),anyString(), anyString(),
         any(Instant.class), anyBoolean())).thenReturn(message);
@@ -94,8 +99,13 @@ class RegistrationServiceImplTest {
 
   @Test
   void sendAccountAuthenticationTokenShouldThrowRegistrationEmailSendingExceptionWhenMailNotSent(){
+    Instant timestamp = Instant.ofEpochSecond(12345);
     UserDetailsWrapper user = getValidatedWrapper();
+    TokenObject token = getCreatedTokenObject();
+
+    when(user.getUsername()).thenReturn("user");
     when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.expiresAt(any(TokenObject.class))).thenReturn(timestamp);
     when(this.registrationMessage.generate(anyString(),anyString(), anyString(),
         any(Instant.class), anyBoolean())).thenReturn("message");
     doThrow(EmailSendingException.class).when(this.emailService).sendMail(anyString(), anyString(),
@@ -124,10 +134,16 @@ class RegistrationServiceImplTest {
     assertEquals(expectedMessage, result.getMessage());
   }
 
+  private TokenObject getCreatedTokenObject(){
+    TokenObject token = mock(TokenObject.class);
+    when(this.tokenFacade.create(any())).thenReturn(token);
+    when(token.getTokenValue()).thenReturn("123");
+    return token;
+  }
   private UserDetailsWrapper getValidatedWrapper(){
     UserDetailsWrapper user = mock(UserDetailsWrapper.class);
-    when(this.validator.validate(USER_EMAIL)).thenReturn(true);
-    when(this.userService.loadUserWrapperByUsername(USER_EMAIL)).thenReturn(Optional.of(user));
+    when(this.validator.validate(anyString())).thenReturn(true);
+    when(this.userService.loadUserWrapperByUsername(anyString())).thenReturn(Optional.of(user));
     return user;
   }
 }
