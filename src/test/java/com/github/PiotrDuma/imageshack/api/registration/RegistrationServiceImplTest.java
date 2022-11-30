@@ -14,8 +14,11 @@ import static org.mockito.Mockito.when;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAccountEnabledException.RegistrationAccountEnabledException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException.RegistrationException;
+import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
 import com.github.PiotrDuma.imageshack.tools.email.EmailSendingException;
@@ -23,6 +26,8 @@ import com.github.PiotrDuma.imageshack.tools.email.EmailService;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +39,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceImplTest {
   private static final String USER_EMAIL = "user@email.com";
+  private static final String TOKEN_VALUE = "z3v2";
   private static final String APP_NAME = "imageshack";
   @Mock
   private UserService userService;
@@ -52,6 +58,93 @@ class RegistrationServiceImplTest {
     this.service = new RegistrationServiceImpl(userService, emailService, tokenFacade,
         registrationMessage, validator);
     ReflectionTestUtils.setField(this.service, "appName", APP_NAME);
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationEmailAddressEcceptionWhenEmailIsInvalid(){
+    when(this.validator.validate(any())).thenReturn(false);
+
+    Exception result = assertThrows(RegistrationEmailAddressException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationExceptionWhenAccountNotFound(){
+    when(this.validator.validate(anyString())).thenReturn(true);
+    when(this.userService.loadUserWrapperByUsername(anyString())).thenReturn(Optional.empty());
+
+    Exception result = assertThrows(RegistrationException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals("Account not found.", result.getMessage());
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationAccountEnabledExceptionWhenAccountIsEnabled(){
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(user.isEnabled()).thenReturn(true);
+
+    Exception result = assertThrows(RegistrationAccountEnabledException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationAuthExceptionWhenTokenNotFound(){
+    Supplier<Stream<TokenObject>> supplier = () -> Stream.empty();
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
+
+    Exception result = assertThrows(RegistrationAuthException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationAuthExceptionWhenNoValidTokenFound(){
+    TokenObject token = mock(TokenObject.class);
+    Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(token.getTokenValue()).thenReturn("12311");
+    when(token.getTokenType()).thenReturn(TokenAuthType.PASSWORD_RESET);
+    when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
+
+    Exception result = assertThrows(RegistrationAuthException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationAuthExceptionWhenTokenIsInvalid(){
+    TokenObject token = mock(TokenObject.class);
+    Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(token.getTokenValue()).thenReturn(TOKEN_VALUE);
+    when(token.getTokenType()).thenReturn(TokenAuthType.ACCOUNT_CONFIRMATION);
+    when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
+    when(this.tokenFacade.isValid(token)).thenReturn(false);
+
+    Exception result = assertThrows(RegistrationAuthException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+  }
+
+  @Test
+  void authenticateShouldSetEnabledUserWhenTokenIsValid(){
+    TokenObject token = mock(TokenObject.class);
+    Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(token.getTokenValue()).thenReturn(TOKEN_VALUE);
+    when(token.getTokenType()).thenReturn(TokenAuthType.ACCOUNT_CONFIRMATION);
+    when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
+    when(this.tokenFacade.isValid(token)).thenReturn(true);
+
+    this.service.authenticate(USER_EMAIL, TOKEN_VALUE);
+    verify(user, times(1)).setEnabled(true);
   }
 
   @Test
@@ -112,8 +205,9 @@ class RegistrationServiceImplTest {
         anyString(), anyBoolean());
 
     Exception result = assertThrows(RegistrationEmailSendingException.class, () ->
-        this.service.sendAccountAuthenticationToken(anyString()));
+        this.service.sendAccountAuthenticationToken(USER_EMAIL));
   }
+
   @Test
   void sendAccountAuthenticationTokenShouldThrowWhenEmailIsInvalid(){
     String expected = "Account with that email doesn't exists.";
@@ -123,6 +217,7 @@ class RegistrationServiceImplTest {
         this.service.sendAccountAuthenticationToken(USER_EMAIL));
     assertEquals(expected, result.getMessage());
   }
+
   @Test
   void sendAccountAuthenticationTokenShouldThrowWhenAccountDoesntExists(){
     String expectedMessage = "Account with that email doesn't exists.";
