@@ -73,9 +73,8 @@ class RegistrationServiceImplTest {
     when(this.validator.validate(anyString())).thenReturn(true);
     when(this.userService.loadUserWrapperByUsername(anyString())).thenReturn(Optional.empty());
 
-    Exception result = assertThrows(RegistrationException.class,
+    Exception result = assertThrows(RegistrationEmailAddressException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
-    assertEquals("Account not found.", result.getMessage());
   }
 
   @Test
@@ -101,12 +100,26 @@ class RegistrationServiceImplTest {
   }
 
   @Test
-  void authenticateShouldThrowRegistrationAuthExceptionWhenNoValidTokenFound(){
+  void authenticateShouldThrowRegistrationAuthExceptionWhenNoneTokenHasValidTokenValue(){
     TokenObject token = mock(TokenObject.class);
     Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
     UserDetailsWrapper user = getValidatedWrapper();
 
     when(token.getTokenValue()).thenReturn("12311");
+    when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
+
+    Exception result = assertThrows(RegistrationAuthException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationAuthExceptionWhenNoneTokenHasValidTokenType(){
+    TokenObject token = mock(TokenObject.class);
+    Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(token.getTokenValue()).thenReturn(TOKEN_VALUE);
     when(token.getTokenType()).thenReturn(TokenAuthType.PASSWORD_RESET);
     when(user.isEnabled()).thenReturn(false);
     when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
@@ -114,6 +127,7 @@ class RegistrationServiceImplTest {
     Exception result = assertThrows(RegistrationAuthException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
   }
+
 
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenTokenIsInvalid(){

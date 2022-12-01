@@ -8,8 +8,8 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationE
 
 public interface RegistrationService {
   void register(AppUserDTO appUserDTO) throws RegistrationException, RegistrationEmailSendingException;
-  boolean authenticate(String email, String tokenValue) throws RegistrationAuthException,
-      RegistrationAccountEnabledException;
+  void authenticate(String email, String tokenValue) throws RegistrationAuthException,
+      RegistrationEmailAddressException, RegistrationAccountEnabledException, RegistrationException;
   void sendAccountAuthenticationToken(String email) throws RegistrationEmailSendingException,
       RegistrationEmailAddressException, RegistrationAccountEnabledException;
 }

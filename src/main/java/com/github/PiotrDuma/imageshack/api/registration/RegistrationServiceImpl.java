@@ -3,6 +3,7 @@ package com.github.PiotrDuma.imageshack.api.registration;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAccountEnabledException.RegistrationAccountEnabledException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
@@ -57,8 +58,21 @@ class RegistrationServiceImpl implements RegistrationService {
   }
 
   @Override
-  public boolean authenticate(String email, String tokenValue){
-    return false;
+  public void authenticate(String email, String tokenValue){
+    validateEmail(email);
+    UserDetailsWrapper user = getUserDetailsWrapper(email);
+    checkEnabled(user);
+
+    TokenObject token = this.tokenFacade.findByEmail(email)
+        .filter(t -> t.getTokenValue().equals(tokenValue))
+        .filter(t -> t.getTokenType().equals(TokenAuthType.ACCOUNT_CONFIRMATION))
+        .findAny().orElseThrow(() -> new RegistrationAuthException());
+
+    if(tokenFacade.isValid(token)){
+      user.setEnabled(true);
+    }else{
+      throw new RegistrationAuthException();
+    }
   }
 
   @Override
