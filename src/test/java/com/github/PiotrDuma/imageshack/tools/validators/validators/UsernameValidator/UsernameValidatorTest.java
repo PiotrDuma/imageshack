@@ -49,6 +49,8 @@ class UsernameValidatorTest {
     assertFalse(this.validator.validate(username+"*"));
     assertFalse(this.validator.validate(username+"("));
     assertFalse(this.validator.validate(username+")"));
+    assertFalse(this.validator.validate(username+"\""));
+    assertFalse(this.validator.validate(username+"\'"));
   }
 
   @Test
@@ -69,5 +71,12 @@ class UsernameValidatorTest {
   void returnFalseWhenUsernameIsEmpty(){
     String username = "";
     assertFalse(this.validator.validate(username));
+  }
+
+  @Test
+  void getExceptionMessageReturnsValidString(){
+    String message = "Username must be between 3-32 characters, "
+        + "cannot contain blank and special signs: %\'$@&*()\"";
+    assertEquals(message, this.validator.getExceptionMessage());
   }
 }

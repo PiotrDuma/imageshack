@@ -14,4 +14,6 @@ public abstract class AbstractValidator implements Validator{
     Matcher mather = setPattern().matcher(text);
     return mather.matches();
   }
+
+  public abstract String getExceptionMessage();
 }

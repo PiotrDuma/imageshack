@@ -62,10 +62,30 @@ class EmailValidatorTest {
   }
 
   @Test
+  void returnFalseWhenEmailHasForbiddenSpecialSigns(){
+    String email = "aaaa@email.com";
+    assertFalse(this.validator.validate("$"+email));
+    assertFalse(this.validator.validate("!"+email));
+    assertFalse(this.validator.validate("&"+email));
+    assertFalse(this.validator.validate("*"+email));
+    assertFalse(this.validator.validate("("+email));
+    assertFalse(this.validator.validate(")"+email));
+    assertFalse(this.validator.validate("\""+email));
+    assertFalse(this.validator.validate("\'"+email));
+  }
+
+  @Test
   void returnFalseWhenIfEmailContainsBlankSigns(){
     assertFalse(validator.validate("login123@imageshack.net "));
     assertFalse(validator.validate(" login123@imageshack.net"));
     assertFalse(validator.validate("login123@ imageshack.net"));
     assertFalse(validator.validate("login 123@imageshack.net"));
+  }
+
+  @Test
+  void getExceptionMessageReturnsValidString(){
+    String message = "Email address must be between 3-64 characters, "
+        + "it cannot contain blank and special signs: $\'?@&*()\"";
+    assertEquals(message, this.validator.getExceptionMessage());
   }
 }
