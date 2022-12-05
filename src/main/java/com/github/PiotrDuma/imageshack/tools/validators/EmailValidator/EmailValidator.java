@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component("emailValidator")
 public class EmailValidator extends AbstractValidator {
-  private static final String EXCEPTION_MESSAGE =  "Email address must be between 3-64 characters, "
-      + "it cannot contain blank and special signs: $\'?@&*()\"";
+  private static final String EXCEPTION_MESSAGE =  "Email address cannot contain blank "
+      + "and special signs: $\'?@&*()\"";
   private static final Integer MIN_LENGTH = 3;
   private static final Integer MAX_LENGTH = 64;
   private static final Pattern EMAIL_PATTERN =

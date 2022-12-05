@@ -5,21 +5,16 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 public class AppUserDTO {
-  private static final String USERNAME_LENGTH = "Username must be between 3 and 20 characters";
-  private static final String PASSWORD_LENGTH_MIN = "Password must have at least 8 characters";
-  private static final String PASSWORD_LENGTH_MAX = "Password must have less than 32 characters";
-  private static final String EMAIL_LENGTH = "Email address is too long";
-
-  @NotBlank
-  @Size(min = 3, max = 32, message = USERNAME_LENGTH)
+  @NotBlank(message = "Username cannot be blank")
+  @Size(min = 3, max = 32, message = "Username must be between 3-32 characters")
   private String username;
-  @Email
-  @NotBlank
-  @Size(max = 64, message = EMAIL_LENGTH)
+  @Email(message = "It's not email format")
+  @NotBlank(message = "Email cannot be blank")
+  @Size(max = 64, message = "Email address is too long")
   private String email;
-  @NotBlank
-  @Size(min = 8, message = PASSWORD_LENGTH_MIN)
-  @Size(max = 32, message = PASSWORD_LENGTH_MAX)
+  @NotBlank(message = "Password cannot be blank")
+  @Size(min = 8, message = "Password must have at least 8 characters")
+  @Size(max = 32, message = "Password must have less than 32 characters")
   private String password;
 
   public AppUserDTO() {

@@ -75,8 +75,7 @@ class UsernameValidatorTest {
 
   @Test
   void getExceptionMessageReturnsValidString(){
-    String message = "Username must be between 3-32 characters, "
-        + "cannot contain blank and special signs: %\'$@&*()\"";
+    String message = "Username cannot contain blank and special signs: %\'$@&*()\"";
     assertEquals(message, this.validator.getExceptionMessage());
   }
 }

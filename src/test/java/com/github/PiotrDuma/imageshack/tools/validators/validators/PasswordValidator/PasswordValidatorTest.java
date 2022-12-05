@@ -78,7 +78,7 @@ class PasswordValidatorTest {
   void getExceptionMessageReturnsValidString(){
     String message = "Password size must be between 8-32, it has to "
         + "have at least one lower-, one upper case letter, one digit and "
-        + "cannot contain blank signs";
+        + "it cannot contain blank signs";
     assertEquals(message, this.validator.getExceptionMessage());
   }
 }

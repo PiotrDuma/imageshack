@@ -84,8 +84,7 @@ class EmailValidatorTest {
 
   @Test
   void getExceptionMessageReturnsValidString(){
-    String message = "Email address must be between 3-64 characters, "
-        + "it cannot contain blank and special signs: $\'?@&*()\"";
+    String message = "Email address cannot contain blank and special signs: $\'?@&*()\"";
     assertEquals(message, this.validator.getExceptionMessage());
   }
 }
