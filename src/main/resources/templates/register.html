@@ -10,8 +10,11 @@
   <h1>Sign up</h1>
     <p>to continue to <b>Imageshack</b></p>
     <form action="#" th:action="@{/register}" th:object="${dto}" method="post">
+      <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}" />
       <input type="email" placeholder="Email address" class="register_input" th:field="*{email}" /><br>
+      <p th:if="${#fields.hasErrors('username')}" th:errorclass="error" th:errors="*{username}" />
       <input type="text" placeholder="Username" class="register_input" th:field="*{username}"/><br>
+      <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}" />
       <input type="password" placeholder="Password" iclass="register_input" th:field="*{password}" /><br>
       <input type="submit" value="Sign in" />
     </form>

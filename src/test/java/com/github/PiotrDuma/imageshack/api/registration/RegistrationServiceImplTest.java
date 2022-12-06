@@ -17,7 +17,6 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationA
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException.RegistrationException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
@@ -89,7 +88,7 @@ class RegistrationServiceImplTest {
 
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenTokenNotFound(){
-    Supplier<Stream<TokenObject>> supplier = () -> Stream.empty();
+    Supplier<Stream<TokenObject>> supplier = Stream::empty;
     UserDetailsWrapper user = getValidatedWrapper();
 
     when(user.isEnabled()).thenReturn(false);
