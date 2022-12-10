@@ -1,8 +1,13 @@
 .register-box {
-  background-color: white;
-  /* height: 100vh;
+  background-color: #ffffef;
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-direction: column; */
+  flex-direction: column;
+  padding: 20px 30px 30px;
+  text-align: center;
+  width: 340px;
+}
+
+.register-page {
+  position: fixed;
 }
