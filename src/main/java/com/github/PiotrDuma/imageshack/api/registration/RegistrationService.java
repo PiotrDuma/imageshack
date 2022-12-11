@@ -1,15 +1,11 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAccountEnabledException.RegistrationAccountEnabledException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException.RegistrationException;
+import java.io.IOException;
 
 public interface RegistrationService {
-  void register(AppUserDTO appUserDTO) throws RegistrationException, RegistrationEmailSendingException;
-  void authenticate(String email, String tokenValue) throws RegistrationAuthException,
-      RegistrationEmailAddressException, RegistrationAccountEnabledException, RegistrationException;
-  void sendAccountAuthenticationToken(String email) throws RegistrationEmailSendingException,
-      RegistrationEmailAddressException, RegistrationAccountEnabledException;
+  void register(AppUserDTO appUserDTO) throws RuntimeException;
+  void authenticate(String email, String tokenValue) throws RegistrationAuthException;
+  void sendAccountAuthenticationToken(String email) throws RegistrationEmailSendingException;
 }

@@ -5,6 +5,8 @@
   <title>Sign up in Imageshack</title>
   <link rel="stylesheet" href="../static/css/register.css">
   <link rel="stylesheet" href="../static/css/global.css">
+  <link rel="stylesheet" th:href="@{css/global.css}" />
+  <link rel="stylesheet" th:href="@{css/register.css}" />
 </head>
 <body>
 <div class="content">
@@ -13,11 +15,15 @@
       <h1>Sign up</h1>
         <p>to continue to <b>Imageshack</b></p>
         <form action="#" th:action="@{/register}" th:object="${dto}" method="post">
-          <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}" />
+          <div th:if="${#fields.hasErrors('global')}">
+            <p th:each="err : ${#fields.errors('global')}" th:text="${err}" class="error">ERROR</p>
+          </div>
+
+          <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}"> </p>
           <input type="email" placeholder="Email address" class="register_input" th:field="*{email}" /><br>
-          <p th:if="${#fields.hasErrors('username')}" th:errorclass="error" th:errors="*{username}" />
+          <p th:if="${#fields.hasErrors('username')}" th:errorclass="error" th:errors="*{username}"> </p>
           <input type="text" placeholder="Username" class="register_input" th:field="*{username}"/><br>
-          <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}" />
+          <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}"> </p>
           <input type="password" placeholder="Password" iclass="register_input" th:field="*{password}" /><br>
           <input type="submit" value="Sign in" />
         </form>
