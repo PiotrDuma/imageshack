@@ -3,35 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>Sign up in Imageshack</title>
-  <link rel="stylesheet" href="../static/css/register.css">
   <link rel="stylesheet" href="../static/css/global.css">
+  <link rel="stylesheet" href="../static/css/simple-page.css">
   <link rel="stylesheet" th:href="@{css/global.css}" />
-  <link rel="stylesheet" th:href="@{css/register.css}" />
+  <link rel="stylesheet" th:href="@{css/simple-page.css}" />
 </head>
 <body>
 <div class="content">
-  <div class="register-page">
-    <div class="register-box">
+  <div class="content-page">
+    <div class="content-box">
       <h1>Sign up</h1>
-        <p>to continue to <b>Imageshack</b></p>
+      <p class="custom-p">to continue to <b>Imageshack</b></p>
         <form action="#" th:action="@{/register}" th:object="${dto}" method="post">
-          <div th:if="${#fields.hasErrors('global')}">
-            <p th:each="err : ${#fields.errors('global')}" th:text="${err}" class="error">ERROR</p>
+          <div th:if="${#fields.hasErrors('global')}" class="error-box">
+            <p th:each="err : ${#fields.errors('global')}" th:text="${err}">error</p>
           </div>
 
           <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}"> </p>
-          <input type="email" placeholder="Email address" class="register_input" th:field="*{email}" /><br>
+          <input type="email" placeholder="Email address" class="input-field" th:field="*{email}" /><br>
           <p th:if="${#fields.hasErrors('username')}" th:errorclass="error" th:errors="*{username}"> </p>
-          <input type="text" placeholder="Username" class="register_input" th:field="*{username}"/><br>
+          <input type="text" placeholder="Username" class="input-field" th:field="*{username}"/><br>
           <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}"> </p>
-          <input type="password" placeholder="Password" iclass="register_input" th:field="*{password}" /><br>
-          <input type="submit" value="Sign in" />
+          <input type="password" placeholder="Password" class="input-field" th:field="*{password}" /><br>
+          <input type="submit" class="submit-btn" value="Sign up"/>
         </form>
       </div>
-
-      <div id = "registration_footer">
-        Already have an account? <a href="/login">Log In</a>
-      </div>
+      <p class="custom-p">Already have an account? <b><a href="/login">Log In</a></b></p>
     </div>
   </div>
 </body>

@@ -1,0 +1,31 @@
+.content-box {
+  background-color: #efefff;
+  align-items: center;
+  flex-direction: column;
+  padding: 15% 15% 5%;
+  text-align: center;
+  width: 400px;
+}
+
+.content-page {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 5px;
+  border: solid 1px;
+  margin: 0;
+  font-size: large;
+  letter-spacing: 1.5px;
+}
+
+.custom-p {
+  color: #808080;
+}
+
+a:hover {
+  color: #3d3d3d;
+}
