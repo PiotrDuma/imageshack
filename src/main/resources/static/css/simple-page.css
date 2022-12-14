@@ -5,6 +5,7 @@
   padding: 15% 15% 5%;
   text-align: center;
   width: 400px;
+  margin-top: 10%;
 }
 
 .content-page {
@@ -17,7 +18,7 @@
   width: 100%;
   padding: 10px 5px;
   border: solid 1px;
-  margin: 0;
+  margin: 5px 0;
   font-size: large;
   letter-spacing: 1.5px;
 }
