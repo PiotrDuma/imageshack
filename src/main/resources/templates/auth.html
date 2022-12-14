@@ -14,13 +14,13 @@
       <div class="content-box">
         <h3>Confirm your account through your email account</h3>
         <h4>Have you not received email? Try to send it again:</h4>
-        <form action="#" th:action="@{/register/confirm}" th:object="${email}" method="post">
+        <form action="#" th:action="@{/register/auth}" th:object="${email}" method="post">
           <div th:if="${#fields.hasErrors('global')}" class="error-box">
             <p th:each="err : ${#fields.errors('global')}" th:text="${err}">error</p>
           </div>
 
-          <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}"> </p>
-          <input type="email" placeholder="Email address" class="input-field" th:field="*{email}" /><br>
+          <p th:if="${#fields.hasErrors('emailAddress')}" th:errorclass="error" th:errors="*{emailAddress}"> </p>
+          <input type="email" placeholder="Email address" class="input-field" th:field="*{emailAddress}"/><br>
 
           <div th:if="${message}" class="success-box">
             <p th:text="${message}">success</p>

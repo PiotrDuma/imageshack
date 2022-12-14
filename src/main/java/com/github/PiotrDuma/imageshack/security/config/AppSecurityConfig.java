@@ -19,7 +19,7 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final static String LOGIN_URL = "/login";
   private final static String LOGOUT_URL = "/logout";
-  private final static String REGISTRATION_URL = "/register";
+  private final static String REGISTRATION_URL = "/register/**";
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService userDetailsService;
 
