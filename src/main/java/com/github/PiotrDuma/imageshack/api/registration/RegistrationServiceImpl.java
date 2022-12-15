@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("registrationService")
 class RegistrationServiceImpl implements RegistrationService {
@@ -58,6 +59,7 @@ class RegistrationServiceImpl implements RegistrationService {
   }
 
   @Override
+  @Transactional
   public void authenticate(String email, String tokenValue){
     validateEmail(email);
     UserDetailsWrapper user = getUserDetailsWrapper(email);

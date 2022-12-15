@@ -1,8 +1,10 @@
 package com.github.PiotrDuma.imageshack.api.registration.EmailAuthentication;
 
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
 import com.github.PiotrDuma.imageshack.api.registration.RegistrationService;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/register/auth")
@@ -53,6 +56,19 @@ public class EmailAuthController {
     }
     return "auth";
   }
+
+  @PostMapping("/confirm")
+  public String confirm(@RequestParam("email") String email, @RequestParam("token") String token){
+    try{
+      System.out.println(email);
+      System.out.println(token);
+      this.registrationService.authenticate(email, token);
+    }catch(RegistrationAuthException ex){
+      //TODO: throw bad request + message;
+    }
+    return "login";
+  }
+
 
   private class Email{
     private String emailAddress;
