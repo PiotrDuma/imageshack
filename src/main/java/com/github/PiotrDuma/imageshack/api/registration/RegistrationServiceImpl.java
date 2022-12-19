@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.api.registration;
 
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAccountEnabledException.RegistrationAccountEnabledException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
@@ -43,19 +44,16 @@ class RegistrationServiceImpl implements RegistrationService {
     this.validator = validator;
   }
 
-  //TODO: extend registration by email confirmation
-//  @Override
-//  public void registerUser(AppUserDTO appUserDTO) {
-//    UserDetailsWrapper wrapper = userManageService.createNewUser(
-//        appUserDTO.getEmail(),
-//        appUserDTO.getUsername(),
-//        appUserDTO.getPassword());
-//  }
-
-
   @Override
-  public void register(AppUserDTO appUserDTO){
-
+  @Transactional
+  public void register(AppUserDTO dto) throws RegisterIOException {
+    boolean loginExists = userService.existsByUsername(dto.getUsername());
+    boolean emailExists = userService.existsByEmail(dto.getEmail());
+    if(loginExists || emailExists) {
+      throw new RegisterIOException(loginExists, emailExists);
+    }
+    UserDetailsWrapper newUser = this.userService.createNewUser(dto.getUsername(), dto.getEmail(),
+        dto.getPassword());
   }
 
   @Override

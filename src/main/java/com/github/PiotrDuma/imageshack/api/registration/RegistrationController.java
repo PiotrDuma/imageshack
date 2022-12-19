@@ -1,5 +1,6 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import javax.validation.Valid;
@@ -51,16 +52,18 @@ public class RegistrationController {
     try{
       this.registrationService.register(dto);
       this.registrationService.sendAccountAuthenticationToken(dto.getEmail());
+    }catch(RegisterIOException ex){
+      handleRegisterIOException(ex, dto, bindingResult);
+      return "register";
     }catch(RegistrationEmailSendingException ex){
-      ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
-      bindingResult.addError(error);
+      handleEmailSendingException(ex, bindingResult);
       return "register";
     }catch (RuntimeException ex){
       ObjectError error = new ObjectError("registrationFailure", REGISTRATION_FAILURE);
       bindingResult.addError(error);
       return "register";
     }
-    return "login";
+    return "redirect:/login";
   }
 
   private BindingResult checkFields(AppUserDTO dto, BindingResult bindingResult){
@@ -77,5 +80,21 @@ public class RegistrationController {
           passwordValidator.getExceptionMessage()));
     }
     return bindingResult;
+  }
+
+  private void handleRegisterIOException(RegisterIOException ex, AppUserDTO dto, BindingResult bindingResult){
+    if(ex.isEmailTaken()){
+      bindingResult.addError(new FieldError("dto", "email", dto.getEmail(),
+          false, null, null, ex.getEmailTakenMessage()));
+    }
+    if(ex.isLoginTaken()){
+      bindingResult.addError(new FieldError("dto", "username", dto.getUsername(),
+          false, null, null, ex.getUsernameTakenMessage()));
+    }
+  }
+
+  private void handleEmailSendingException(RegistrationEmailSendingException ex, BindingResult bindingResult){
+    ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
+    bindingResult.addError(error);
   }
 }

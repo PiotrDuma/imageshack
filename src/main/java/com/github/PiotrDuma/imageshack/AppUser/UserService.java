@@ -18,4 +18,6 @@ public interface UserService extends UserDetailsService {
   UserDetailsWrapper removeRole(Long userId, AppRoleType roleType) throws UserNotFoundException;
   List<UserDetailsWrapper> findUsersByRole(AppRoleType roleType);
   Optional<UserDetailsWrapper> loadUserWrapperByUsername(String username);
+  boolean existsByUsername(String username);
+  boolean existsByEmail(String email);
 }

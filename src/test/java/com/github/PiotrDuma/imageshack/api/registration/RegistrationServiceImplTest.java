@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.api.registration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAccountEnabledException.RegistrationAccountEnabledException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailAddressException.RegistrationEmailAddressException;
@@ -32,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -57,6 +60,44 @@ class RegistrationServiceImplTest {
     this.service = new RegistrationServiceImpl(userService, emailService, tokenFacade,
         registrationMessage, validator);
     ReflectionTestUtils.setField(this.service, "appName", APP_NAME);
+  }
+
+  @Test
+  void registerShouldThrowWhenEmailExists(){
+    String username = "username";
+    String password = "password";
+    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
+
+    when(this.userService.existsByEmail(any())).thenReturn(true);
+
+    RegisterIOException result = assertThrows(RegisterIOException.class,
+        () -> this.service.register(dto));
+    assertTrue(result.isEmailTaken());
+    verify(this.userService, times(0)).createNewUser(any(), any(), any());
+  }
+
+  @Test
+  void registerShouldThrowWhenUsernameExists(){
+    String username = "username";
+    String password = "password";
+    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
+
+    when(this.userService.existsByUsername(any())).thenReturn(true);
+
+    RegisterIOException result = assertThrows(RegisterIOException.class,
+        () -> this.service.register(dto));
+    assertTrue(result.isLoginTaken());
+    verify(this.userService, times(0)).createNewUser(any(), any(), any());
+  }
+
+  @Test
+  void registerShouldCreateUser() throws RegisterIOException {
+    String username = "username";
+    String password = "password";
+    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
+
+    this.service.register(dto);
+    verify(this.userService, times(1)).createNewUser(username, USER_EMAIL, password);
   }
 
   @Test

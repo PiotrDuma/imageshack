@@ -293,4 +293,42 @@ class UserServiceImplTest {
 
     assertTrue(result.isEmpty());
   }
+
+  @Test
+  void existsByUsernameShouldReturnTrueIfUsernameExists(){
+    String username = "username";
+    User user = Mockito.mock(User.class);
+    Mockito.when(this.userRepo.findByUsername(Mockito.anyString())).thenReturn(Optional.of(user));
+
+    boolean result = this.userRepo.findByUsername(username).isPresent();
+    assertTrue(result);
+  }
+
+  @Test
+  void existsByUsernameShouldReturnFalseIfUsernameNotExist(){
+    String username = "username";
+    Mockito.when(this.userRepo.findByUsername(Mockito.anyString())).thenReturn(Optional.empty());
+
+    boolean result = this.userRepo.findByUsername(username).isPresent();
+    assertFalse(result);
+  }
+
+  @Test
+  void existsByEmailShouldReturnreturnTrueIfEmailExists(){
+    String email = "email";
+    User user = Mockito.mock(User.class);
+    Mockito.when(this.userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(user));
+
+    boolean result = this.userRepo.findByEmail(email).isPresent();
+    assertTrue(result);
+  }
+
+  @Test
+  void existsByEmailShouldReturnreturnFalseIfEmailNotExists(){
+    String email = "email";
+    Mockito.when(this.userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
+
+    boolean result = this.userRepo.findByEmail(email).isPresent();
+    assertFalse(result);
+  }
 }

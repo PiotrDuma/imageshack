@@ -69,6 +69,7 @@ class UserServiceImpl implements UserService {
     UserDetailsWrapper wrapper = new UserDetailsWrapper.Builder(username,
         email,
         passwordEncoder.encode(password))
+        .enabled(false)
         .build();
 
 //  save relationship between user and details
@@ -120,5 +121,15 @@ class UserServiceImpl implements UserService {
       return Optional.empty();
     }
     return wrapper;
+  }
+
+  @Override
+  public boolean existsByUsername(String username) {
+    return userRepo.findByUsername(username).isPresent();
+  }
+
+  @Override
+  public boolean existsByEmail(String email) {
+    return userRepo.findByEmail(email).isPresent();
   }
 }
