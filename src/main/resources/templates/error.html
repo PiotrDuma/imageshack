@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${exception.status}">error</title>
+  <link rel="stylesheet" href="../static/css/global.css" th:href="@{/css/global.css}">
+  <link rel="stylesheet" href="../static/css/simple-page.css" th:href="@{/css/simple-page.css}">
+</head>
+
+<body>
+  <h1 th:text="${exception.status}">status</h1><br>
+  message: <span th:text="${exception.message}">message</span><br>
+  timestamp: <span th:text="${exception.timestamp}">timestamp</span><br>
+</body>
+</html>

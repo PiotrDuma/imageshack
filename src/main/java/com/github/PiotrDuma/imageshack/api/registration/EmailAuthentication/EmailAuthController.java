@@ -4,7 +4,6 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationA
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
 import com.github.PiotrDuma.imageshack.api.registration.RegistrationService;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
-import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -57,7 +56,7 @@ public class EmailAuthController {
     return "auth";
   }
 
-  @PostMapping("/confirm")
+  @GetMapping("/confirm")
   public String confirm(@RequestParam("email") String email, @RequestParam("token") String token){
     try{
       System.out.println(email);
