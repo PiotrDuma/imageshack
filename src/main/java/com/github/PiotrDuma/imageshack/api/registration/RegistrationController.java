@@ -1,7 +1,7 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +55,9 @@ public class RegistrationController {
     }catch(RegisterIOException ex){
       handleRegisterIOException(ex, dto, bindingResult);
       return "register";
-    }catch(RegistrationEmailSendingException ex){
-      handleEmailSendingException(ex, bindingResult);
-      return "register";
+//    }catch(RegistrationAuthException ex){ //TODO: check exception advice
+//      handleEmailSendingException(ex, bindingResult);
+//      return "register";
     }catch (RuntimeException ex){
       ObjectError error = new ObjectError("registrationFailure", REGISTRATION_FAILURE);
       bindingResult.addError(error);
@@ -93,8 +93,8 @@ public class RegistrationController {
     }
   }
 
-  private void handleEmailSendingException(RegistrationEmailSendingException ex, BindingResult bindingResult){
-    ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
-    bindingResult.addError(error);
-  }
+//  private void handleEmailSendingException(RegistrationAuthException ex, BindingResult bindingResult){
+//    ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
+//    bindingResult.addError(error);
+//  }
 }

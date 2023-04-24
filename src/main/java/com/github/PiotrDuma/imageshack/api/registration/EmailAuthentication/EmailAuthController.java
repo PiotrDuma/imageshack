@@ -1,7 +1,6 @@
 package com.github.PiotrDuma.imageshack.api.registration.EmailAuthentication;
 
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException.RegistrationAuthException;
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationEmailSendingException.RegistrationEmailSendingException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.RegistrationService;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,7 @@ public class EmailAuthController {
     try{
       this.registrationService.sendAccountAuthenticationToken(email.getEmailAddress());
       model.addAttribute("message", SUCCESS_MESSAGE);
-    }catch (RegistrationEmailSendingException ex){
+    }catch (RegistrationAuthException ex){
       ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
       bindingResult.addError(error);
       return "auth";
