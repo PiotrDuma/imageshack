@@ -1,5 +1,7 @@
 package com.github.PiotrDuma.imageshack.security.config;
 
+import com.github.PiotrDuma.imageshack.api.login.CustomAuthenticationFailureHandler;
+import com.github.PiotrDuma.imageshack.api.login.CustomUserDetailsAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -35,18 +38,20 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         .csrf().disable()
         .headers().frameOptions().disable().and() //required for H2 database.
         .authorizeRequests()
-        .antMatchers("/", "index", "/static/**", "/js/**", "/css/**",
+        .antMatchers("/", "/index", "/static/**", "/js/**", "/css/**",
                         "/img/**", "/json/**").permitAll()
+        .antMatchers(LOGIN_URL+"/**").permitAll()
         .antMatchers(REGISTRATION_URL, "/api/securitytest/**").permitAll()
         .anyRequest().authenticated()
         .and()
         .formLogin()
           .loginPage(LOGIN_URL)
           .defaultSuccessUrl("/api/securitytest/info", true)
-//          .failureUrl("/login?error=true")
+          .failureUrl("/login/error")
+          .failureHandler(this.customAuthFailureHandler())
           .permitAll()
         .and()
-          .logout()
+        .logout()
           .logoutUrl(LOGOUT_URL)
           .logoutSuccessUrl("/")
           .clearAuthentication(true)
@@ -62,10 +67,17 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
+  public AuthenticationFailureHandler customAuthFailureHandler(){
+    return new CustomAuthenticationFailureHandler();
+  }
+
+  @Bean
   public DaoAuthenticationProvider userDetailsServiceProvider() {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    DaoAuthenticationProvider provider = new CustomUserDetailsAuthenticationProvider();
     provider.setPasswordEncoder(passwordEncoder);
     provider.setUserDetailsService(userDetailsService);
+    provider.setHideUserNotFoundExceptions(false);
     return provider;
   }
 }
