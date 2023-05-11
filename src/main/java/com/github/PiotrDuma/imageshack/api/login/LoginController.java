@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * Controller of login domain. Handle login endpoint and a few chosen endpoint methods to redirect
+ * into login page with specified message based on exception thrown in
+ * {@link com.github.PiotrDuma.imageshack.api.login.CustomAuthenticationFailureHandler}
+ */
 @Controller
 @RequestMapping("/login")
 public class LoginController{

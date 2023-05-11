@@ -47,7 +47,6 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         .formLogin()
           .loginPage(LOGIN_URL)
           .defaultSuccessUrl("/api/securitytest/info", true)
-          .failureUrl("/login/error")
           .failureHandler(this.customAuthFailureHandler())
           .permitAll()
         .and()
