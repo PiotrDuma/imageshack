@@ -75,31 +75,39 @@ class AuthTokenSenderTest {
 
   @Test
   void throwExceptionWhenEmailServiceThrowsSendingException(){
+    String message = "Email sending has failed.";
     mockTokenObject();
     doThrow(new EmailSendingException("")).when(this.emailService)
         .sendMail(anyString(), anyString(), anyString(), anyBoolean());
 
     Exception ex = assertThrows(RegistrationAuthException.class,
         () -> this.service.send(EMAIL, USERNAME));
+    assertEquals(message, ex.getMessage());
   }
 
   @Test
   void throwExceptionWhenEmailServiceThrowsInvalidEmailAddressException(){
+    String message = "Invalid email address. Email sending has failed.";
     mockTokenObject();
     doThrow(new InvalidEmailAddressException("")).when(this.emailService)
         .sendMail(anyString(), anyString(), anyString(), anyBoolean());
 
     Exception ex = assertThrows(RegistrationAuthException.class,
         () -> this.service.send(EMAIL, USERNAME));
+
+    assertEquals(message, ex.getMessage());
   }
 
   @Test
   void throwExceptionWhenTokenFacadeThrowsRuntimeException(){
+    String message = "Token initialization has failed.";
     doThrow(new RuntimeException()).when(this.tokenFacade)
         .create(any(TokenAuthDTO.class));
 
     Exception ex = assertThrows(RegistrationAuthException.class,
         () -> this.service.send(EMAIL, USERNAME));
+
+    assertEquals(message, ex.getMessage());
   }
 
   @Test

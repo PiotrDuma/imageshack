@@ -8,7 +8,6 @@ public class RegistrationExceptionHandler {
 
   @ExceptionHandler(RegistrationAuthException.class)
   public String handleRegistrationAuthException(RegistrationAuthException ex){
-    return "login"; //TODO: prepare custom login page.
+    return "redirect:/login/error/inactive";
   }
-
 }

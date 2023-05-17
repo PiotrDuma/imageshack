@@ -63,9 +63,9 @@ class AuthTokenSender {
     try{
       this.emailService.sendMail(email, subject, message, false);
     }catch (EmailSendingException ex){
-      throw new RegistrationAuthException();//TODO: specify exception type or msg response #1+TEST
+      throw new RegistrationAuthException("Email sending has failed.");
     }catch(InvalidEmailAddressException ex){
-      throw new RegistrationAuthException();//TODO: specify exception type or msg response0 #2+TEST
+      throw new RegistrationAuthException("Invalid email address. Email sending has failed.");
     }
   }
 
@@ -74,7 +74,7 @@ class AuthTokenSender {
     try{
       token = this.tokenFacade.create(new TokenAuthDTO(email, TokenAuthType.ACCOUNT_CONFIRMATION));
     }catch(RuntimeException ex){
-      throw new RegistrationAuthException();//TODO: specify exception type or msg response+TEST
+      throw new RegistrationAuthException("Token initialization has failed.");
     }
     return token;
   }
