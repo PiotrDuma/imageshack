@@ -1,10 +1,15 @@
 package com.github.PiotrDuma.imageshack.api.registration.Exceptions;
 
-public class RegistrationAuthException extends RuntimeException{
-  public RegistrationAuthException() {
+/**
+ * Throws during internal service authentication processing exceptions, e.g. token validation, data transaction.
+ */
+public class RegistrationAuthException extends RegistrationException{
+
+  public RegistrationAuthException(String msg, Throwable cause) {
+    super(msg, cause);
   }
 
-  public RegistrationAuthException(String message) {
-    super(message);
+  public RegistrationAuthException(String msg) {
+    super(msg);
   }
 }

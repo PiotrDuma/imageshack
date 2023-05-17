@@ -1,5 +1,6 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
@@ -13,7 +14,9 @@ import static org.mockito.Mockito.when;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthAccountException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
@@ -87,30 +90,36 @@ class RegistrationServiceImplTest {
   }
 
   @Test
-  void authenticateShouldThrowRegistrationAuthExceptionWhenEmailIsInvalid(){
+  void authenticateShouldThrowRegistrationAuthProcessingExceptionWhenEmailIsInvalid(){
+    String message = "Invalid email address.";
     when(this.validator.validate(any())).thenReturn(false);
 
-    Exception result = assertThrows(RegistrationAuthException.class,
+    Exception result = assertThrows(RegistrationAuthProcessingException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals(message, result.getMessage());
   }
 
   @Test
-  void authenticateShouldThrowRegistrationAuthExceptionWhenAccountNotFound(){
+  void authenticateShouldThrowRegistrationAuthAccountExceptionWhenAccountNotFound(){
+    String message = "User with email: "+ USER_EMAIL +" not found.";
     when(this.validator.validate(anyString())).thenReturn(true);
     when(this.userService.loadUserWrapperByUsername(anyString())).thenReturn(Optional.empty());
 
-    Exception result = assertThrows(RegistrationAuthException.class,
+    Exception result = assertThrows(RegistrationAuthAccountException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals(message, result.getMessage());
   }
 
   @Test
-  void authenticateShouldThrowRegistrationAuthExceptionWhenAccountIsEnabled(){
+  void authenticateShouldThrowRegistrationAuthAccountExceptionWhenAccountIsEnabled(){
+    String message = "Account's already enabled.";
     UserDetailsWrapper user = getValidatedWrapper();
 
     when(user.isEnabled()).thenReturn(true);
 
-    Exception result = assertThrows(RegistrationAuthException.class,
+    Exception result = assertThrows(RegistrationAuthAccountException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals(message, result.getMessage());
   }
 
   @Test
@@ -154,7 +163,6 @@ class RegistrationServiceImplTest {
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
   }
 
-
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenTokenIsInvalid(){
     TokenObject token = mock(TokenObject.class);
@@ -188,38 +196,38 @@ class RegistrationServiceImplTest {
   }
 
   @Test
-  void sendAccountAuthenticationTokenShouldThrowRegistrationAuthExceptionWhenAccountIsEnabled(){
-    String expected = "Account has been authenticated.";
+  void sendAccountAuthenticationTokenShouldThrowRegistrationAuthAccountExceptionWhenAccountIsEnabled(){
+    String expected = "Account's already enabled.";
     UserDetailsWrapper user = getValidatedWrapper();
     when(user.isEnabled()).thenReturn(true);
 
-    Exception result = assertThrows(RegistrationAuthException.class, () ->
+    Exception result = assertThrows(RegistrationAuthAccountException.class, () ->
         this.service.sendAccountAuthenticationToken(USER_EMAIL));
 
-//    assertEquals(expected, result.getMessage());//TODO: refactor exception class
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
-  void sendAccountAuthenticationTokenShouldThrowRegistrationAuthExceptionWhenEmailIsInvalid(){
-    String expected = "Account with that email doesn't exists.";
+  void sendAccountAuthenticationTokenShouldThrowRegistrationAuthProcessingExceptionWhenEmailIsInvalid(){
+    String expected = "Invalid email address.";
     when(this.validator.validate(anyString())).thenReturn(false);
 
-    Exception result = assertThrows(RegistrationAuthException.class, () ->
+    Exception result = assertThrows(RegistrationAuthProcessingException.class, () ->
         this.service.sendAccountAuthenticationToken(USER_EMAIL));
 
-//    assertEquals(expected, result.getMessage());//TODO: refactor exception class
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
-  void sendAccountAuthenticationTokenShouldThrowRegistrationAuthExceptionWhenAccountDoesntExists(){
-    String expectedMessage = "Account with that email doesn't exists.";
+  void sendAccountAuthenticationTokenShouldThrowRegistrationAuthAccountExceptionWhenAccountNotExist(){
+    String expectedMessage = "User with email: "+ USER_EMAIL +" not found.";
     when(this.validator.validate(USER_EMAIL)).thenReturn(true);
     when(this.userService.loadUserWrapperByUsername(USER_EMAIL)).thenReturn(Optional.empty());
 
-    Exception result = assertThrows(RegistrationAuthException.class, () ->
+    Exception result = assertThrows(RegistrationAuthAccountException.class, () ->
         this.service.sendAccountAuthenticationToken(USER_EMAIL));
 
-//    assertEquals(expectedMessage, result.getMessage());//TODO: refactor exception class
+    assertEquals(expectedMessage, result.getMessage());
   }
 
   @Test
@@ -227,9 +235,9 @@ class RegistrationServiceImplTest {
     UserDetailsWrapper user = getValidatedWrapper();
     when(user.isEnabled()).thenReturn(false);
 
-    doThrow(new RegistrationAuthException()).when(this.authTokenSender).send(any(), any());
+    doThrow(new RegistrationAuthProcessingException("")).when(this.authTokenSender).send(any(), any());
 
-    Exception result = assertThrows(RegistrationAuthException.class, () ->
+    Exception result = assertThrows(RegistrationAuthProcessingException.class, () ->
         this.service.sendAccountAuthenticationToken(USER_EMAIL));
   }
 

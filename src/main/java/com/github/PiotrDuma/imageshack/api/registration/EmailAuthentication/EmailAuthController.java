@@ -37,6 +37,7 @@ public class EmailAuthController {
     return "auth";
   }
 
+  //TODO: fix: handle exceptions + message response.
   @PostMapping
   public String sendEmail(@ModelAttribute("email") Email email, BindingResult bindingResult, Model model){
     if(!validator.validate(email.getEmailAddress())){

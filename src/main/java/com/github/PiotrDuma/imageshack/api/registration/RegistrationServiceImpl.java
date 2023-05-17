@@ -3,7 +3,10 @@ package com.github.PiotrDuma.imageshack.api.registration;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthAccountException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
@@ -11,6 +14,7 @@ import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,17 +57,17 @@ class RegistrationServiceImpl implements RegistrationService {
     TokenObject token = this.tokenFacade.findByEmail(email)
         .filter(t -> t.getTokenValue().equals(tokenValue))
         .filter(t -> t.getTokenType().equals(TokenAuthType.ACCOUNT_CONFIRMATION))
-        .findAny().orElseThrow(() -> new RegistrationAuthException());
+        .findAny().orElseThrow(() -> new RegistrationAuthException("Invalid authentication token."));
 
     if(tokenFacade.isValid(token)){
       user.setEnabled(true);
     }else{
-      throw new RegistrationAuthException();
+      throw new RegistrationAuthException("Authentication failed.");
     }
   }
 
   @Override
-  public void sendAccountAuthenticationToken(String email) throws RegistrationAuthException{
+  public void sendAccountAuthenticationToken(String email) throws RegistrationException {
     validateEmail(email);
     UserDetailsWrapper user = getUserDetailsWrapper(email);
     checkEnabled(user);
@@ -73,18 +77,18 @@ class RegistrationServiceImpl implements RegistrationService {
 
   private void validateEmail(String email){
     if(!validator.validate(email)){
-      throw new RegistrationAuthException(); //TODO: msg: invalid email address
+      throw new RegistrationAuthProcessingException("Invalid email address.");
     }
   }
 
   private void checkEnabled(UserDetails user){
     if(user.isEnabled()){
-      throw new RegistrationAuthException(); //TODO: msg: account already enabled
+      throw new RegistrationAuthAccountException("Account's already enabled.");
     }
   }
 
   private UserDetailsWrapper getUserDetailsWrapper(String email){
-    return userService.loadUserWrapperByUsername(email).orElseThrow(//TODO: message or type: not found
-        RegistrationAuthException::new);
+    return userService.loadUserWrapperByUsername(email).orElseThrow(
+        () -> new RegistrationAuthAccountException("User with email: "+ email +" not found."));
   }
 }

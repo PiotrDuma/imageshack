@@ -12,7 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
@@ -80,7 +80,7 @@ class AuthTokenSenderTest {
     doThrow(new EmailSendingException("")).when(this.emailService)
         .sendMail(anyString(), anyString(), anyString(), anyBoolean());
 
-    Exception ex = assertThrows(RegistrationAuthException.class,
+    Exception ex = assertThrows(RegistrationAuthProcessingException.class,
         () -> this.service.send(EMAIL, USERNAME));
     assertEquals(message, ex.getMessage());
   }
@@ -92,7 +92,7 @@ class AuthTokenSenderTest {
     doThrow(new InvalidEmailAddressException("")).when(this.emailService)
         .sendMail(anyString(), anyString(), anyString(), anyBoolean());
 
-    Exception ex = assertThrows(RegistrationAuthException.class,
+    Exception ex = assertThrows(RegistrationAuthProcessingException.class,
         () -> this.service.send(EMAIL, USERNAME));
 
     assertEquals(message, ex.getMessage());
@@ -104,7 +104,7 @@ class AuthTokenSenderTest {
     doThrow(new RuntimeException()).when(this.tokenFacade)
         .create(any(TokenAuthDTO.class));
 
-    Exception ex = assertThrows(RegistrationAuthException.class,
+    Exception ex = assertThrows(RegistrationAuthProcessingException.class,
         () -> this.service.send(EMAIL, USERNAME));
 
     assertEquals(message, ex.getMessage());

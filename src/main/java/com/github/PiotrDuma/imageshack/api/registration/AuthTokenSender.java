@@ -1,6 +1,6 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
-import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
@@ -48,9 +48,9 @@ class AuthTokenSender {
    *
    * @param email an email address of registered user required to send message.
    * @param username the name used only in email message.
-   * @throws RegistrationAuthException throws when token is not created or message sending failed.
+   * @throws RegistrationAuthProcessingException throws when token is not created or message sending failed.
    */
-  public void send(String email, String username) throws RegistrationAuthException {
+  public void send(String email, String username) throws RegistrationAuthProcessingException {
     String subject = applicationName + ": account activation";
     TokenObject token = createToken(email);
     Instant expirationDate = getExpirationTimestamp(token);
@@ -59,22 +59,22 @@ class AuthTokenSender {
     sendEmail(email, subject, message);
   }
 
-  private void sendEmail(String email, String subject, String message) throws RegistrationAuthException{
+  private void sendEmail(String email, String subject, String message) throws RegistrationAuthProcessingException{
     try{
       this.emailService.sendMail(email, subject, message, false);
     }catch (EmailSendingException ex){
-      throw new RegistrationAuthException("Email sending has failed.");
+      throw new RegistrationAuthProcessingException("Email sending has failed.", ex.getCause());
     }catch(InvalidEmailAddressException ex){
-      throw new RegistrationAuthException("Invalid email address. Email sending has failed.");
+      throw new RegistrationAuthProcessingException("Invalid email address. Email sending has failed.", ex.getCause());
     }
   }
 
-  private TokenObject createToken(String email) throws RegistrationAuthException {
+  private TokenObject createToken(String email) throws RegistrationAuthProcessingException {
     TokenObject token = null;
     try{
       token = this.tokenFacade.create(new TokenAuthDTO(email, TokenAuthType.ACCOUNT_CONFIRMATION));
     }catch(RuntimeException ex){
-      throw new RegistrationAuthException("Token initialization has failed.");
+      throw new RegistrationAuthProcessingException("Token initialization has failed.", ex.getCause());
     }
     return token;
   }
