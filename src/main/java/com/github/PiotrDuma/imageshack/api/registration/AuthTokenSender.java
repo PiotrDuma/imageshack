@@ -92,7 +92,7 @@ class AuthTokenSender {
 
   private String generateMessage(String email, String login, String tokenValue,
       Instant tokenExpiresAt, boolean isHtml) {
-    String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss")
+    String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss a")
         .withZone(ZoneId.systemDefault()).format(tokenExpiresAt);
     if(isHtml){
       return "empty"; //TODO

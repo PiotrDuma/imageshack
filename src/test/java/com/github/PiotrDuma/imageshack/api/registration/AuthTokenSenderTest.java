@@ -132,7 +132,7 @@ class AuthTokenSenderTest {
         + "If you didn't register please ignore this email. The profile will be deleted soon.\n"
         + "Activation time expires at: %s\n\n"
         + "This email has been automatically generated. Please do not reply.";
-    String datetime = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss")
+    String datetime = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss a")
         .withZone(ZoneOffset.systemDefault()).format(TIMESTAMP);
     String expectedMessage = String.format(message, APP_NAME, EMAIL, USERNAME, CONFIRM_URL, datetime);
     ArgumentCaptor<String> messageResult = ArgumentCaptor.forClass(String.class);
