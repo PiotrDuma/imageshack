@@ -124,6 +124,7 @@ class RegistrationServiceImplTest {
 
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenTokenNotFound(){
+    String message = "Authentication token not found.";
     Supplier<Stream<TokenObject>> supplier = Stream::empty;
     UserDetailsWrapper user = getValidatedWrapper();
 
@@ -132,10 +133,12 @@ class RegistrationServiceImplTest {
 
     Exception result = assertThrows(RegistrationAuthException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals(message, result.getMessage());
   }
 
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenNoneTokenHasValidTokenValue(){
+    String message = "Authentication token not found.";
     TokenObject token = mock(TokenObject.class);
     Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
     UserDetailsWrapper user = getValidatedWrapper();
@@ -146,10 +149,12 @@ class RegistrationServiceImplTest {
 
     Exception result = assertThrows(RegistrationAuthException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals(message, result.getMessage());
   }
 
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenNoneTokenHasValidTokenType(){
+    String message = "Authentication token not found.";
     TokenObject token = mock(TokenObject.class);
     Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
     UserDetailsWrapper user = getValidatedWrapper();
@@ -161,10 +166,32 @@ class RegistrationServiceImplTest {
 
     Exception result = assertThrows(RegistrationAuthException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    assertEquals(message, result.getMessage());
+  }
+
+  @Test
+  void authenticateShouldThrowRegistrationAuthExceptionWhenTokenIsInvalidThrowException(){
+    String message = "Authentication failed. ";
+    String thrownMessage = "Token's not valid.";
+    TokenObject token = mock(TokenObject.class);
+    Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
+    UserDetailsWrapper user = getValidatedWrapper();
+
+    when(token.getTokenValue()).thenReturn(TOKEN_VALUE);
+    when(token.getTokenType()).thenReturn(TokenAuthType.ACCOUNT_CONFIRMATION);
+    when(user.isEnabled()).thenReturn(false);
+    when(this.tokenFacade.findByEmail(any())).thenReturn(supplier.get());
+    when(this.tokenFacade.isValid(token)).thenThrow(new RuntimeException(thrownMessage));
+
+    Exception result = assertThrows(RegistrationAuthException.class,
+        () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    verify(user, times(0)).setEnabled(true);
+    assertEquals(message + thrownMessage, result.getMessage());
   }
 
   @Test
   void authenticateShouldThrowRegistrationAuthExceptionWhenTokenIsInvalid(){
+    String message = "Authentication failed. Token expired.";
     TokenObject token = mock(TokenObject.class);
     Supplier<Stream<TokenObject>> supplier = () -> Stream.of(token);
     UserDetailsWrapper user = getValidatedWrapper();
@@ -177,6 +204,8 @@ class RegistrationServiceImplTest {
 
     Exception result = assertThrows(RegistrationAuthException.class,
         () -> this.service.authenticate(USER_EMAIL, TOKEN_VALUE));
+    verify(user, times(0)).setEnabled(true);
+    assertEquals(message, result.getMessage());
   }
 
   @Test

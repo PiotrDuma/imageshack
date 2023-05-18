@@ -14,7 +14,6 @@ import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +48,7 @@ class RegistrationServiceImpl implements RegistrationService {
 
   @Override
   @Transactional
-  public void authenticate(String email, String tokenValue){
+  public void authenticate(String email, String tokenValue) throws RegistrationException{
     validateEmail(email);
     UserDetailsWrapper user = getUserDetailsWrapper(email);
     checkEnabled(user);
@@ -57,12 +56,16 @@ class RegistrationServiceImpl implements RegistrationService {
     TokenObject token = this.tokenFacade.findByEmail(email)
         .filter(t -> t.getTokenValue().equals(tokenValue))
         .filter(t -> t.getTokenType().equals(TokenAuthType.ACCOUNT_CONFIRMATION))
-        .findAny().orElseThrow(() -> new RegistrationAuthException("Invalid authentication token."));
+        .findAny().orElseThrow(() -> new RegistrationAuthException("Authentication token not found."));
 
-    if(tokenFacade.isValid(token)){
-      user.setEnabled(true);
-    }else{
-      throw new RegistrationAuthException("Authentication failed.");
+    try{
+      if(tokenFacade.isValid(token)){
+        user.setEnabled(true);
+      }else{
+        throw new RuntimeException("Token expired.");
+      }
+    }catch (RuntimeException ex){
+      throw new RegistrationAuthException("Authentication failed. " + ex.getMessage(), ex.getCause());
     }
   }
 

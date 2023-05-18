@@ -2,6 +2,7 @@ package com.github.PiotrDuma.imageshack.api.registration.EmailAuthentication;
 
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.RegistrationService;
+import com.github.PiotrDuma.imageshack.exception.badrequest.BadRequestException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,16 +57,14 @@ public class EmailAuthController {
     return "auth";
   }
 
-  @GetMapping("/confirm")
+  @RequestMapping("/confirm")
   public String confirm(@RequestParam("email") String email, @RequestParam("token") String token){
     try{
-      System.out.println(email);
-      System.out.println(token);
       this.registrationService.authenticate(email, token);
     }catch(RegistrationAuthException ex){
-      //TODO: throw bad request + message;
+      throw new BadRequestException(ex.getMessage());
     }
-    return "login";
+    return "redirect:/login";
   }
 
 
