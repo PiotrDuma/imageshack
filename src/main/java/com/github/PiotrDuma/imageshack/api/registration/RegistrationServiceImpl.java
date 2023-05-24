@@ -3,6 +3,7 @@ package com.github.PiotrDuma.imageshack.api.registration;
 import com.github.PiotrDuma.imageshack.AppUser.UserService;
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterTransactionException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthAccountException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
@@ -36,14 +37,19 @@ class RegistrationServiceImpl implements RegistrationService {
 
   @Override
   @Transactional
-  public void register(AppUserDTO dto) throws RegisterIOException {
+  public void register(AppUserDTO dto) throws RegistrationException {
+    //TODO: refactor data checks and register IO exception.
     boolean loginExists = userService.existsByUsername(dto.getUsername());
     boolean emailExists = userService.existsByEmail(dto.getEmail());
     if(loginExists || emailExists) {
       throw new RegisterIOException(loginExists, emailExists);
     }
-    UserDetailsWrapper newUser = this.userService.createNewUser(dto.getUsername(), dto.getEmail(),
-        dto.getPassword());
+
+    try{
+      this.userService.createNewUser(dto.getUsername(), dto.getEmail(), dto.getPassword()); //TODO: check exception handling.
+    }catch(RuntimeException ex){
+      throw new RegisterTransactionException(ex.getMessage());
+    }
   }
 
   @Override

@@ -4,6 +4,7 @@ import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.NoSuchRoleExc
 import com.github.PiotrDuma.imageshack.AppUser.domain.UserDetailsWrapper;
 import com.github.PiotrDuma.imageshack.AppUser.domain.RoleSecurity.AppRoleType;
 import com.github.PiotrDuma.imageshack.AppUser.domain.exceptions.UserNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetails;
