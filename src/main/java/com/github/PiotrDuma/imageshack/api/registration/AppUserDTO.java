@@ -4,7 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-public class AppUserDTO {
+public class AppUserDTO { //TODO: extend DTO model and html form with additional password field.
   @NotBlank(message = "Username cannot be blank")
   @Size(min = 3, max = 32, message = "Username must be between 3-32 characters")
   private String username;
@@ -16,7 +16,7 @@ public class AppUserDTO {
   @Size(min = 8, message = "Password must have at least 8 characters")
   @Size(max = 32, message = "Password must have less than 32 characters")
   private String password;
-
+  private String password2;
   public AppUserDTO() {
   }
 
@@ -24,6 +24,22 @@ public class AppUserDTO {
     this.username = username;
     this.email = email;
     this.password = password;
+  }
+
+  public enum Field{
+    USERNAME("username"),
+    EMAIL("email"),
+    PASSWORD("password");
+
+    private String fieldName;
+
+    Field(String fieldName) {
+      this.fieldName = fieldName;
+    }
+
+    public String getFieldName() {
+      return fieldName;
+    }
   }
 
   public String getUsername() {
@@ -48,5 +64,13 @@ public class AppUserDTO {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public String getPassword2() {
+    return password2;
+  }
+
+  public void setPassword2(String password2) {
+    this.password2 = password2;
   }
 }

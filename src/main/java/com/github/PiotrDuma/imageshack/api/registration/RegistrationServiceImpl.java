@@ -42,7 +42,7 @@ class RegistrationServiceImpl implements RegistrationService {
     boolean loginExists = userService.existsByUsername(dto.getUsername());
     boolean emailExists = userService.existsByEmail(dto.getEmail());
     if(loginExists || emailExists) {
-      throw new RegisterIOException(loginExists, emailExists);
+//      throw new RegisterIOException(loginExists, emailExists);
     }
 
     try{

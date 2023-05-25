@@ -1,32 +1,29 @@
 package com.github.PiotrDuma.imageshack.api.registration.Exceptions;
 
 
-//TODO: map of exception failures
-public class RegisterIOException extends RegistrationException {
-  private static final String ALREADY_EXISTS = "That username/email has been taken";
-  private static final String EMAIL_TAKEN = "Email has been taken";
-  private static final String USERNAME_TAKEN = "Username has been taken";
-  private final boolean isLoginTaken;
-  private final boolean isEmailTaken;
-  public RegisterIOException(boolean isLoginTaken, boolean isEmailTaken) {
-    super(ALREADY_EXISTS);
-    this.isLoginTaken = isLoginTaken;
-    this.isEmailTaken = isEmailTaken;
+import com.github.PiotrDuma.imageshack.api.registration.AppUserDTO;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class RegisterIOException extends IOException {
+  private final Map<AppUserDTO.Field, List<String>> errorMessages;
+
+  public RegisterIOException() {
+    this.errorMessages = new HashMap<>();
   }
 
-  public boolean isLoginTaken() {
-    return isLoginTaken;
+  public void addError(AppUserDTO.Field field, String message){
+    this.errorMessages.computeIfAbsent(field, k -> new ArrayList<>()).add(message);
   }
 
-  public boolean isEmailTaken() {
-    return isEmailTaken;
+  public Map<AppUserDTO.Field, List<String>> getErrorMessages(){
+    return this.errorMessages;
   }
 
-  public String getUsernameTakenMessage(){
-    return USERNAME_TAKEN;
-  }
-
-  public String getEmailTakenMessage(){
-    return EMAIL_TAKEN;
+  public List<String> getErrorMessage(AppUserDTO.Field field){
+    return this.errorMessages.get(field);
   }
 }

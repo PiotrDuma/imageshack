@@ -4,7 +4,7 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOExc
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException;
 
 public interface RegistrationService {
-  void register(AppUserDTO appUserDTO) throws RegistrationException;
+  void register(AppUserDTO appUserDTO) throws RegistrationException, RegisterIOException;
   void authenticate(String email, String tokenValue) throws RegistrationException;
 
   /**
