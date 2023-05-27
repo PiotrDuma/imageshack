@@ -1,7 +1,10 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
+import com.github.PiotrDuma.imageshack.api.registration.AppUserDTO.Field;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
+import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -52,7 +55,7 @@ public class RegistrationController {
       this.registrationService.register(dto);
       this.registrationService.sendAccountAuthenticationToken(dto.getEmail());
     }catch(RegisterIOException ex){
-//      handleRegisterIOException(ex, dto, bindingResult);
+      handleRegisterIOException(ex, dto, bindingResult);
       return "register";
 //    }catch(RegistrationAuthException ex){ //TODO: check exception advice
 //      handleEmailSendingException(ex, bindingResult);
@@ -81,16 +84,16 @@ public class RegistrationController {
     return bindingResult;
   }
 
-//  private void handleRegisterIOException(RegisterIOException ex, AppUserDTO dto, BindingResult bindingResult){
-//    if(ex.isEmailTaken()){
-//      bindingResult.addError(new FieldError("dto", "email", dto.getEmail(),
-//          false, null, null, ex.getEmailTakenMessage()));
-//    }
-//    if(ex.isLoginTaken()){
-//      bindingResult.addError(new FieldError("dto", "username", dto.getUsername(),
-//          false, null, null, ex.getUsernameTakenMessage()));
-//    }
-//  }
+  private void handleRegisterIOException(RegisterIOException ex, AppUserDTO dto, BindingResult bindingResult){
+    Map<Field, List<String>> errors = ex.getErrorMessages();
+    for(Map.Entry<Field, List<String>> item:errors.entrySet()){
+      List<String> messages = item.getValue();
+      for(String msg:messages){
+        bindingResult.addError(new FieldError("dto", item.getKey().getFieldName(),
+            dto.getValue(item.getKey()),false, null, null, msg));
+      }
+    }
+  }
 
 //  private void handleEmailSendingException(RegistrationAuthException ex, BindingResult bindingResult){
 //    ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
