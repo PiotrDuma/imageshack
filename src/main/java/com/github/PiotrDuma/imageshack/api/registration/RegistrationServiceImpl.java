@@ -24,6 +24,7 @@ class RegistrationServiceImpl implements RegistrationService {
   private final TokenAuthFacade tokenFacade;
   private final AuthTokenSender authTokenSender;
   private final Validator validator;
+  private RegisterIOException exception;
 
   @Autowired
   public RegistrationServiceImpl(UserService userService, TokenAuthFacade tokenFacade,
@@ -37,14 +38,11 @@ class RegistrationServiceImpl implements RegistrationService {
 
   @Override
   @Transactional
-  public void register(AppUserDTO dto) throws RegistrationException {
-    //TODO: refactor data checks and register IO exception.
-    boolean loginExists = userService.existsByUsername(dto.getUsername());
-    boolean emailExists = userService.existsByEmail(dto.getEmail());
-    if(loginExists || emailExists) {
-//      throw new RegisterIOException(loginExists, emailExists);
+  public void register(AppUserDTO dto) throws RegistrationException, RegisterIOException {
+    checkInputDTO(dto);
+    if(exception!=null){
+      throw exception;
     }
-
     try{
       this.userService.createNewUser(dto.getUsername(), dto.getEmail(), dto.getPassword()); //TODO: check exception handling.
     }catch(RuntimeException ex){
@@ -99,5 +97,26 @@ class RegistrationServiceImpl implements RegistrationService {
   private UserDetailsWrapper getUserDetailsWrapper(String email){
     return userService.loadUserWrapperByUsername(email).orElseThrow(
         () -> new RegistrationAuthAccountException("User with email: "+ email +" not found."));
+  }
+
+  private void addExceptionMessage(AppUserDTO.Field field, String message){
+    if(this.exception==null){
+      this.exception = new RegisterIOException();
+    }
+    exception.addError(field, message);
+  }
+
+  /**
+   * AppUserDTO's fields are already checked by validators in controller.
+   */
+  private void checkInputDTO(AppUserDTO dto){
+    if(userService.existsByUsername(dto.getUsername())){
+      addExceptionMessage(AppUserDTO.Field.USERNAME, "User with login '"+ dto.getUsername()
+          + "' already exists");
+    }
+    if(userService.existsByEmail(dto.getEmail())){
+      addExceptionMessage(AppUserDTO.Field.EMAIL, "User with email '"+ dto.getEmail()
+          + "' already exists");
+    }
   }
 }

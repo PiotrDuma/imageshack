@@ -16,6 +16,9 @@
           <div th:if="${#fields.hasErrors('global')}" class="error-box">
             <p th:each="err : ${#fields.errors('global')}" th:text="${err}">error</p>
           </div>
+          <div th:if="${sendingFailure}" class="error-box">
+            <span th:text="${sendingFailure}">Error message</span></br>
+          </div>
 
           <p th:if="${#fields.hasErrors('emailAddress')}" th:errorclass="error" th:errors="*{emailAddress}"> </p>
           <input type="email" placeholder="Email address" class="input-field" th:field="*{emailAddress}"/><br>

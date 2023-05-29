@@ -2,6 +2,8 @@ package com.github.PiotrDuma.imageshack.api.registration;
 
 import com.github.PiotrDuma.imageshack.api.registration.AppUserDTO.Field;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthAccountException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.util.List;
 import java.util.Map;
@@ -57,9 +59,8 @@ public class RegistrationController {
     }catch(RegisterIOException ex){
       handleRegisterIOException(ex, dto, bindingResult);
       return "register";
-//    }catch(RegistrationAuthException ex){ //TODO: check exception advice
-//      handleEmailSendingException(ex, bindingResult);
-//      return "register";
+    }catch(RegistrationAuthProcessingException|RegistrationAuthAccountException ex){
+      return "redirect:/register/auth/unsent";
     }catch (RuntimeException ex){
       ObjectError error = new ObjectError("registrationFailure", REGISTRATION_FAILURE);
       bindingResult.addError(error);
@@ -94,9 +95,4 @@ public class RegistrationController {
       }
     }
   }
-
-//  private void handleEmailSendingException(RegistrationAuthException ex, BindingResult bindingResult){
-//    ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
-//    bindingResult.addError(error);
-//  }
 }

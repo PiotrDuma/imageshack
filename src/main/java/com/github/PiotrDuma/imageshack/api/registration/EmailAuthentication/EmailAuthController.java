@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/register/auth")
 public class EmailAuthController {
   private static final String INVALID_EMAIL = "Invalid email address";
   private static final String SUCCESS_MESSAGE = "Mail has been sent. Please check your email";
+  private static final String FAULURE_MESSAGE = "Email sending failure";
   private final RegistrationService registrationService;
   private final Validator validator;
 
@@ -67,6 +69,11 @@ public class EmailAuthController {
     return "redirect:/login";
   }
 
+  @RequestMapping("/unsent")
+  public String sendingFailure(RedirectAttributes attributes){
+    attributes.addFlashAttribute("sendingFailure", FAULURE_MESSAGE);
+    return "redirect:/register/auth";
+  }
 
   private class Email{
     private String emailAddress;

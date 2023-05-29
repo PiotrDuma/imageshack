@@ -17,6 +17,7 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOExc
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthAccountException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
@@ -52,41 +53,43 @@ class RegistrationServiceImplTest {
   }
 
   @Test
-  void registerShouldThrowWhenEmailExists(){//TODO
+  void registerShouldThrowWhenEmailExists(){
+    String expected = "User with email '"+USER_EMAIL+"' already exists";
     String username = "username";
     String password = "password";
-//    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
-//
-//    when(this.userService.existsByEmail(any())).thenReturn(true);
-//
-//    RegisterIOException result = assertThrows(RegisterIOException.class,
-//        () -> this.service.register(dto));
-//    assertTrue(result.isEmailTaken());
-//    verify(this.userService, times(0)).createNewUser(any(), any(), any());
+    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
+
+    when(this.userService.existsByEmail(any())).thenReturn(true);
+
+    RegisterIOException result = assertThrows(RegisterIOException.class,
+        () -> this.service.register(dto));
+    verify(this.userService, times(0)).createNewUser(any(), any(), any());
+    assertTrue(result.getErrorMessage(AppUserDTO.Field.EMAIL).contains(expected));
   }
 
   @Test
-  void registerShouldThrowWhenUsernameExists(){//TODO:
+  void registerShouldThrowWhenUsernameExists(){
     String username = "username";
     String password = "password";
-//    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
-//
-//    when(this.userService.existsByUsername(any())).thenReturn(true);
-//
-//    RegisterIOException result = assertThrows(RegisterIOException.class,
-//        () -> this.service.register(dto));
-//    assertTrue(result.isLoginTaken());
-//    verify(this.userService, times(0)).createNewUser(any(), any(), any());
+    String expected = "User with login '"+username+"' already exists";
+    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
+
+    when(this.userService.existsByUsername(any())).thenReturn(true);
+
+    RegisterIOException result = assertThrows(RegisterIOException.class,
+        () -> this.service.register(dto));
+    verify(this.userService, times(0)).createNewUser(any(), any(), any());
+    assertTrue(result.getErrorMessage(AppUserDTO.Field.USERNAME).contains(expected));
   }
 
   @Test
-  void registerShouldCreateUser() throws RegisterIOException {
+  void registerShouldCreateUser() throws RegistrationException, RegisterIOException {
     String username = "username";
     String password = "password";
-//    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
-//
-//    this.service.register(dto);
-//    verify(this.userService, times(1)).createNewUser(username, USER_EMAIL, password);
+    AppUserDTO dto = new AppUserDTO(username, USER_EMAIL, password);
+
+    this.service.register(dto);
+    verify(this.userService, times(1)).createNewUser(username, USER_EMAIL, password);
   }
 
   @Test

@@ -26,4 +26,9 @@ public class RegisterIOException extends IOException {
   public List<String> getErrorMessage(AppUserDTO.Field field){
     return this.errorMessages.get(field);
   }
+
+  @Override
+  public String getMessage() {
+    return "Registration IO exception occurred";
+  }
 }
