@@ -78,19 +78,26 @@ class UserServiceImpl implements UserService {
 
     user.setCustomUserDetails(details);
     details.setUser(user);
-
-    Long id = userRepo.save(wrapper.getUser()).getId();
-    this.addRole(id, AppRoleType.USER);
+    try{
+      Long id = userRepo.save(wrapper.getUser()).getId();
+      this.addRole(id, AppRoleType.USER);
+    }catch (Exception ex){
+      throw new RuntimeException(ex.getMessage(), ex);
+    }
     return wrapper;
   }
 
   @Transactional
-  public UserDetailsWrapper addRole(Long userId, AppRoleType roleType) throws UserNotFoundException {
-    User user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException());
-    Set<Role> roles = user.getRoles();
-    Role role = this.roleService.findRoleByRoleType(roleType);
-    roles.add(role);
-    return new UserDetailsWrapper(user);
+  public UserDetailsWrapper addRole(Long userId, AppRoleType roleType) throws RuntimeException {
+    try{
+      User user = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+      Set<Role> roles = user.getRoles();
+      Role role = this.roleService.findRoleByRoleType(roleType);
+      roles.add(role);
+      return new UserDetailsWrapper(user);
+    }catch(Exception ex){
+      throw new RuntimeException(ex.getMessage(), ex);
+    }
   }
 
   @Transactional

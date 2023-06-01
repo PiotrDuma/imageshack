@@ -44,9 +44,9 @@ class RegistrationServiceImpl implements RegistrationService {
       throw exception;
     }
     try{
-      this.userService.createNewUser(dto.getUsername(), dto.getEmail(), dto.getPassword()); //TODO: check exception handling.
+      this.userService.createNewUser(dto.getUsername(), dto.getEmail(), dto.getPassword());
     }catch(RuntimeException ex){
-      throw new RegisterTransactionException(ex.getMessage());
+      throw new RegisterTransactionException(ex.getMessage(), ex);
     }
   }
 
@@ -69,7 +69,7 @@ class RegistrationServiceImpl implements RegistrationService {
         throw new RuntimeException("Token expired.");
       }
     }catch (RuntimeException ex){
-      throw new RegistrationAuthException("Authentication failed. " + ex.getMessage(), ex.getCause());
+      throw new RegistrationAuthException("Authentication failed. " + ex.getMessage(), ex);
     }
   }
 

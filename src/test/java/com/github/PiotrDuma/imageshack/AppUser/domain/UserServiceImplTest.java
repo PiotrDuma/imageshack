@@ -70,7 +70,7 @@ class UserServiceImplTest {
     String message = "User with id= %d not found";
     Mockito.when(userRepo.findById(Mockito.anyLong())).thenThrow(new UserNotFoundException(String.format(message, id)));
 
-    Exception ex = assertThrows(UserNotFoundException.class, () -> this.userService.addRole(id, AppRoleType.OWNER));
+    Exception ex = assertThrows(RuntimeException.class, () -> this.userService.addRole(id, AppRoleType.OWNER));
     assertEquals(String.format(message, id), ex.getMessage());
   }
 
