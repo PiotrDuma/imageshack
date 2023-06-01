@@ -1,8 +1,8 @@
 package com.github.PiotrDuma.imageshack.api.registration.Exceptions;
 
 /**
- * Exception thrown when method affects invalid input data. e.g. account is not found, not exists
- * or invoking method is unnecessary.
+ * Exception thrown when method affects invalid input data. e.g. account is not found, not exist
+ * or invoking method is unnecessary(account already activated).
  */
 public class RegistrationAuthAccountException extends RegistrationException{
 

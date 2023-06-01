@@ -1,7 +1,8 @@
 package com.github.PiotrDuma.imageshack.api.registration.Exceptions;
 
 /**
- * Throws during internal service authentication processing exceptions, e.g. token validation, data transaction.
+ * Throws during internal service authentication processing exceptions, e.g. token validation,
+ * data transaction.
  */
 public class RegistrationAuthException extends RegistrationException{
 
