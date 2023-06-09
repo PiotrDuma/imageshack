@@ -39,6 +39,7 @@ class RegistrationServiceImpl implements RegistrationService {
   @Override
   @Transactional
   public void register(AppUserDTO dto) throws RegistrationException, RegisterIOException {
+    this.exception = null; //clear exception cache with every request
     checkInputDTO(dto);
     if(exception!=null){
       throw exception;
