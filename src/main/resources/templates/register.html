@@ -12,12 +12,12 @@
     <div class="content-box">
       <h1>Sign up</h1>
       <p class="custom-p">to continue to <b>Imageshack</b></p>
-        <form action="#" th:action="@{/register}" th:object="${dto}" method="post">
+        <form th:action="@{/register}" th:object="${dto}" th:method="POST">
           <div th:if="${#fields.hasErrors('global')}" class="error-box">
             <p th:each="err : ${#fields.errors('global')}" th:text="${err}">error</p>
           </div>
 
-          <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}"> </p>
+          <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}" > </p>
           <input type="email" placeholder="Email address" class="input-field" th:field="*{email}" /><br>
           <p th:if="${#fields.hasErrors('username')}" th:errorclass="error" th:errors="*{username}"> </p>
           <input type="text" placeholder="Username" class="input-field" th:field="*{username}"/><br>
