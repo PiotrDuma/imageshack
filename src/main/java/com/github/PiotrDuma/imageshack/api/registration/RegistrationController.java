@@ -7,6 +7,7 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationA
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,7 +50,7 @@ public class RegistrationController {
 
   @PostMapping
   public String registerUser(@Valid @ModelAttribute("dto") AppUserDTO dto,
-                       BindingResult bindingResult, Model model){
+                       BindingResult bindingResult, Model model, HttpServletResponse response){
     if(checkFields(dto, bindingResult).hasErrors()){
       return "register";
     }
@@ -57,11 +58,14 @@ public class RegistrationController {
       this.registrationService.register(dto);
       this.registrationService.sendAccountAuthenticationToken(dto.getEmail());
     }catch(RegisterIOException ex){
+      response.setStatus(HttpServletResponse.SC_CONFLICT);
       handleRegisterIOException(ex, dto, bindingResult);
       return "register";
     }catch(RegistrationAuthProcessingException|RegistrationAuthAccountException ex){
+      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return "redirect:/register/auth/unsent";
     }catch (RuntimeException ex){
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       ObjectError error = new ObjectError("registrationFailure", REGISTRATION_FAILURE);
       bindingResult.addError(error);
       return "register";
