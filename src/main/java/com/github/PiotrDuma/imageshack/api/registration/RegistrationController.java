@@ -52,6 +52,7 @@ public class RegistrationController {
   public String registerUser(@Valid @ModelAttribute("dto") AppUserDTO dto,
                        BindingResult bindingResult, Model model, HttpServletResponse response){
     if(checkFields(dto, bindingResult).hasErrors()){
+      response.setStatus(HttpServletResponse.SC_CONFLICT);
       return "register";
     }
     try{
@@ -62,7 +63,6 @@ public class RegistrationController {
       handleRegisterIOException(ex, dto, bindingResult);
       return "register";
     }catch(RegistrationAuthProcessingException|RegistrationAuthAccountException ex){
-      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return "redirect:/register/auth/unsent";
     }catch (RuntimeException ex){
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

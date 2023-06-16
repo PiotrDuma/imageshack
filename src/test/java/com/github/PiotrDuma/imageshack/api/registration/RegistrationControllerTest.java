@@ -1,14 +1,20 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import com.github.PiotrDuma.imageshack.api.registration.AppUserDTO.Field;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterIOException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegisterTransactionException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthAccountException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
 import com.github.PiotrDuma.imageshack.config.controller.ControllerTestConfig;
 import com.github.PiotrDuma.imageshack.config.extensions.ExtendedMockMvcResultMatchers;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
@@ -49,6 +55,38 @@ class RegistrationControllerTest {
   }
 
   @Test
+  void postMethodShouldReturnRedirectToLoginPage()throws Exception{
+    skipIOValidation();
+    doNothing().when(this.registrationService).register(any());
+    doNothing().when(this.registrationService).sendAccountAuthenticationToken(any());
+
+    mockMvc.perform(getRequestBuilder())
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/login"));
+  }
+
+  @Test
+  void postMethodShouldReturnWithFieldErrorWhenRegisterIOExceptionIsThrown()throws Exception{
+    RegisterIOException exception = new RegisterIOException();
+    String usernameMessage = "USERNAME ERROR MESSAGE";
+    String passwordMessage = "PASSWORD ERROR MESSAGE";
+
+    exception.addError(Field.USERNAME, usernameMessage);
+    exception.addError(Field.PASSWORD, passwordMessage);
+
+    skipIOValidation();
+    doThrow(exception).when(this.registrationService).register(any());
+
+    mockMvc.perform(getRequestBuilder())
+        .andExpectAll(view().name("register"),
+            status().isConflict())
+        .andExpectAll(model().attributeExists("dto"),
+            model().attributeHasErrors("dto"),
+            model().errorCount(2))
+        .andExpect(model().attributeHasFieldErrors("dto", "username", "password"));
+  }
+
+  @Test
   void postMethodShouldReturnErrorWhenUserRegistrationThrowsAuthException()throws Exception{
     String message = "Something went wrong. Try again later.";
 
@@ -65,6 +103,28 @@ class RegistrationControllerTest {
   }
 
   @Test
+  void postMethodShouldRedirectWhenRegistrationAuthProcessingExceptionIsThrown()throws Exception{
+    skipIOValidation();
+    doThrow(new RegistrationAuthProcessingException(""))
+        .when(this.registrationService).sendAccountAuthenticationToken(any());
+
+    mockMvc.perform(getRequestBuilder())
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/register/auth/unsent"));
+  }
+
+  @Test
+  void postMethodShouldRedirectWhenRegistrationAuthAccountExceptionIsThrown()throws Exception{
+    skipIOValidation();
+    doThrow(new RegistrationAuthAccountException(""))
+        .when(this.registrationService).sendAccountAuthenticationToken(any());
+
+    mockMvc.perform(getRequestBuilder())
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/register/auth/unsent"));
+  }
+
+  @Test
   void postMethodWithInvalidEmailShouldReturnBackWithFieldError() throws Exception{
     String message = "INVALID FIELD VALUE MESSAGE";
 
@@ -74,7 +134,8 @@ class RegistrationControllerTest {
     when(passwordValidator.validate(any())).thenReturn(true);
 
     mockMvc.perform(getRequestBuilder())
-        .andExpect(view().name("register"))
+        .andExpectAll(view().name("register"),
+            status().isConflict())
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "email"));
@@ -90,7 +151,8 @@ class RegistrationControllerTest {
     when(passwordValidator.validate(any())).thenReturn(true);
 
     mockMvc.perform(getRequestBuilder())
-        .andExpect(view().name("register"))
+        .andExpectAll(view().name("register"),
+            status().isConflict())
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "username"));
@@ -106,7 +168,8 @@ class RegistrationControllerTest {
     when(passwordValidator.validate(any())).thenReturn(false);
 
     mockMvc.perform(getRequestBuilder())
-        .andExpect(view().name("register"))
+        .andExpectAll(view().name("register"),
+            status().isConflict())
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "password"));
@@ -124,7 +187,8 @@ class RegistrationControllerTest {
     when(passwordValidator.getExceptionMessage()).thenReturn(message);
 
     mockMvc.perform(getRequestBuilder())
-        .andExpect(view().name("register"))
+        .andExpectAll(view().name("register"),
+            status().isConflict())
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "email"))
