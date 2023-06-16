@@ -3,6 +3,8 @@ package com.github.PiotrDuma.imageshack.api.registration;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -63,6 +65,9 @@ class RegistrationControllerTest {
     mockMvc.perform(getRequestBuilder())
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/login"));
+    verify(this.registrationService, times(1)).register(any(AppUserDTO.class));
+    verify(this.registrationService, times(1))
+        .sendAccountAuthenticationToken(any());
   }
 
   @Test
@@ -84,6 +89,9 @@ class RegistrationControllerTest {
             model().attributeHasErrors("dto"),
             model().errorCount(2))
         .andExpect(model().attributeHasFieldErrors("dto", "username", "password"));
+    verify(this.registrationService, times(1)).register(any(AppUserDTO.class));
+    verify(this.registrationService, times(0))
+        .sendAccountAuthenticationToken(any());
   }
 
   @Test
@@ -100,6 +108,8 @@ class RegistrationControllerTest {
         .andExpect(ExtendedMockMvcResultMatchers
             .hasGlobalError("dto", "registrationFailure", message))
         .andExpect(model().errorCount(1));
+    verify(this.registrationService, times(0))
+        .sendAccountAuthenticationToken(any());
   }
 
   @Test
@@ -111,6 +121,7 @@ class RegistrationControllerTest {
     mockMvc.perform(getRequestBuilder())
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/register/auth/unsent"));
+    verify(this.registrationService, times(1)).register(any(AppUserDTO.class));
   }
 
   @Test
@@ -122,6 +133,7 @@ class RegistrationControllerTest {
     mockMvc.perform(getRequestBuilder())
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/register/auth/unsent"));
+    verify(this.registrationService, times(1)).register(any(AppUserDTO.class));
   }
 
   @Test
@@ -139,6 +151,9 @@ class RegistrationControllerTest {
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "email"));
+    verify(this.registrationService, times(0)).register(any(AppUserDTO.class));
+    verify(this.registrationService, times(0))
+        .sendAccountAuthenticationToken(any());
   }
 
   @Test
@@ -156,6 +171,9 @@ class RegistrationControllerTest {
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "username"));
+    verify(this.registrationService, times(0)).register(any(AppUserDTO.class));
+    verify(this.registrationService, times(0))
+        .sendAccountAuthenticationToken(any());
   }
 
   @Test
@@ -173,6 +191,9 @@ class RegistrationControllerTest {
         .andExpect(model().attributeExists("dto"))
         .andExpect(model().attributeHasErrors("dto"))
         .andExpect(model().attributeHasFieldErrors("dto", "password"));
+    verify(this.registrationService, times(0)).register(any(AppUserDTO.class));
+    verify(this.registrationService, times(0))
+        .sendAccountAuthenticationToken(any());
   }
 
   @Test
@@ -194,6 +215,9 @@ class RegistrationControllerTest {
         .andExpect(model().attributeHasFieldErrors("dto", "email"))
         .andExpect(model().attributeHasFieldErrors("dto", "username"))
         .andExpect(model().attributeHasFieldErrors("dto", "password"));
+    verify(this.registrationService, times(0)).register(any(AppUserDTO.class));
+    verify(this.registrationService, times(0))
+        .sendAccountAuthenticationToken(any());
   }
 
   private MockHttpServletRequestBuilder getRequestBuilder(){
