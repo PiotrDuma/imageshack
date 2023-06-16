@@ -1,9 +1,15 @@
 package com.github.PiotrDuma.imageshack.api.registration.EmailAuthentication;
 
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
+import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException;
 import com.github.PiotrDuma.imageshack.api.registration.RegistrationService;
 import com.github.PiotrDuma.imageshack.exception.badrequest.BadRequestException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -23,7 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class EmailAuthController {
   private static final String INVALID_EMAIL = "Invalid email address";
   private static final String SUCCESS_MESSAGE = "Mail has been sent. Please check your email";
-  private static final String FAULURE_MESSAGE = "Email sending failure";
+  private static final String FAILURE_MESSAGE = "Email sending failure";
   private final RegistrationService registrationService;
   private final Validator validator;
 
@@ -36,24 +42,26 @@ public class EmailAuthController {
 
   @GetMapping
   public String getPage(Model model){
-    model.addAttribute("email", new Email());
+    model.addAttribute("emailDTO", new EmailDto());
     return "auth";
   }
 
-  //TODO: fix: handle exceptions + message response.
   @PostMapping
-  public String sendEmail(@ModelAttribute("email") Email email, BindingResult bindingResult, Model model){
+  public String sendEmail(@Valid @ModelAttribute("emailDTO") EmailAuthController.EmailDto email,
+      BindingResult bindingResult, Model model, HttpServletResponse response){
     if(!validator.validate(email.getEmailAddress())){
-      bindingResult.addError(new FieldError("emailAddress", "email",
+      bindingResult.addError(new FieldError("emailDTO", "emailAddress",
           email.getEmailAddress(), false, null, null, INVALID_EMAIL));
+      response.setStatus(HttpServletResponse.SC_CONFLICT);
       return "auth";
     }
     try{
       this.registrationService.sendAccountAuthenticationToken(email.getEmailAddress());
       model.addAttribute("message", SUCCESS_MESSAGE);
-    }catch (RegistrationAuthException ex){
+    }catch (RegistrationException ex){
       ObjectError error = new ObjectError("sendingFailure", ex.getMessage());
       bindingResult.addError(error);
+      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return "auth";
     }
     return "auth";
@@ -71,14 +79,17 @@ public class EmailAuthController {
 
   @RequestMapping("/unsent")
   public String sendingFailure(RedirectAttributes attributes){
-    attributes.addFlashAttribute("sendingFailure", FAULURE_MESSAGE);
+    attributes.addFlashAttribute("sendingFailure", FAILURE_MESSAGE);
     return "redirect:/register/auth";
   }
 
-  private class Email{
+  private static class EmailDto {
+    @Email(message = "It's not email format")
+    @NotBlank(message = "Email cannot be blank")
+    @Size(max = 64, message = "Email address is too long")
     private String emailAddress;
 
-    public Email() {
+    private EmailDto() {
     }
 
     public String getEmailAddress() {
@@ -86,7 +97,7 @@ public class EmailAuthController {
     }
 
     public void setEmailAddress(String emailAddress) {
-      this.emailAddress = emailAddress;
+     this.emailAddress = emailAddress;
     }
   }
 }
