@@ -1,6 +1,8 @@
 package com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -10,18 +12,23 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(properties = "spring.profiles.active:test")
+
+@ActiveProfiles("test")
+@DataJpaTest
+@Tag("IntegrationTest")
 class TokenAuthRepoTest {
 
-  private static String TOKEN_EMAIL = "auth1@email.com";
-  private static String TOKEN_VALUE = "awdvfd12354364rsfxxcvv";
-  private static TokenAuthType TOKEN_AUTH_TYPE = TokenAuthType.PASSWORD_RESET;
+  private static final String TOKEN_EMAIL = "auth1@email.com";
+  private static final String TOKEN_VALUE = "awdvfd12354364rsfxxcvv";
+  private static final TokenAuthType TOKEN_AUTH_TYPE = TokenAuthType.PASSWORD_RESET;
   private TokenAuth exampleObject;
   @Autowired
   private TokenAuthRepo repo;
@@ -29,7 +36,7 @@ class TokenAuthRepoTest {
   @Mock
   private Clock clock;
 
-  private static ZonedDateTime NOW = ZonedDateTime.of(
+  private static final ZonedDateTime NOW = ZonedDateTime.of(
       2022,
       10,
       26,
