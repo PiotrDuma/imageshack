@@ -1,4 +1,4 @@
-package com.github.PiotrDuma.imageshack.exception.badrequest;
+package com.github.PiotrDuma.imageshack.exception.type;
 
 import com.github.PiotrDuma.imageshack.exception.AbstractGlobalException;
 import org.springframework.http.HttpStatus;

@@ -3,7 +3,7 @@ package com.github.PiotrDuma.imageshack.api.registration.EmailAuthentication;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException;
 import com.github.PiotrDuma.imageshack.api.registration.RegistrationService;
-import com.github.PiotrDuma.imageshack.exception.badrequest.BadRequestException;
+import com.github.PiotrDuma.imageshack.exception.type.BadRequestException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
