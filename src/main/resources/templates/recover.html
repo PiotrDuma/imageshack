@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Password reset</title>
+  <link rel="stylesheet" href="../static/css/global.css" th:href="@{/css/global.css}">
+  <link rel="stylesheet" href="../static/css/simple-page.css" th:href="@{/css/simple-page.css}">
+</head>
+
+<body>
+<div class="content">
+  <div class="content-page">
+    <div class="content-box">
+      <h4>Recover your account</h4>
+      <form action="#" th:action="@{/recover}" th:object="${emailDto}" method="post">
+        <div th:if="${#fields.hasErrors('global')}" class="error-box">
+          <p th:each="err : ${#fields.errors('global')}" th:text="${err}">error</p>
+        </div>
+        <div th:if="${sendingFailure}" class="error-box">
+          <span th:text="${sendingFailure}">Error message</span></br>
+        </div>
+
+        <p th:if="${#fields.hasErrors('address')}" th:errorclass="error" th:errors="*{address}"> </p>
+        <input type="email" placeholder="Email address" class="input-field" th:field="*{address}"/><br>
+
+        <div th:if="${message}" class="success-box">
+          <p th:text="${message}">success</p>
+        </div>
+        <input type="submit" class="submit-btn" value="Recover" />
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+
+</html>

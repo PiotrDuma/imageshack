@@ -23,6 +23,7 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
   private final static String LOGIN_URL = "/login";
   private final static String LOGOUT_URL = "/logout";
   private final static String REGISTRATION_URL = "/register/**";
+  private final static String RECOVER_URL = "/recover/**";
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService userDetailsService;
 
@@ -38,9 +39,11 @@ class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         .csrf().disable()
         .headers().frameOptions().disable().and() //required for H2 database.
         .authorizeRequests()
+        .antMatchers("/h2-console/**").permitAll()// available only with test profile
         .antMatchers("/", "/index", "/static/**", "/js/**", "/css/**",
                         "/img/**", "/json/**").permitAll()
         .antMatchers(LOGIN_URL+"/**").permitAll()
+        .antMatchers(RECOVER_URL).permitAll()
         .antMatchers(REGISTRATION_URL, "/api/securitytest/**").permitAll()
         .anyRequest().authenticated()
         .and()
