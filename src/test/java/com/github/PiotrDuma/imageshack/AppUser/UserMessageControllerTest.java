@@ -35,11 +35,10 @@ class UserMessageControllerTest {
   }
 
   @Test
-  public void getAnonymousAuthorizedRequestShouldRedirectToLogin() throws Exception{
+  public void getAuthorizedEndpointByAnonymousShouldThrow403IfEndpointIsAccessible() throws Exception{
     String protectedUrlByAuthority = "/api/securitytest/user/authorityREAD";
     mvc.perform(MockMvcRequestBuilders.get(protectedUrlByAuthority))
-        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl(URL_LOGIN));
+        .andExpect(MockMvcResultMatchers.status().isForbidden());
   }
 
   @Test
