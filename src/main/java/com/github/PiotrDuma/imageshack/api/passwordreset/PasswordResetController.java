@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/recover")
 public class PasswordResetController {
   private static final String EMAIL_ATTRIBUTE_MISSING = "Missing session attribute: email";
+  private static final String INVALID_DUPLICATE = "Provided passwords don't match";
   private final PasswordResetService service;
   private final Validator emailValidator;
   private final Validator passwordValidator;
@@ -64,18 +67,40 @@ public class PasswordResetController {
   @GetMapping("/reset")
   public String getResetTemplate(Model model) throws BadRequestException{
     checkSessionAttribute(model);
-
     model.addAttribute("passDto", new PassDto());
     return "reset";
   }
 
   @PostMapping("/reset")
   public String reset(@Valid @ModelAttribute("passDto") PassDto passDto,
-      BindingResult bindingResult, Model model, HttpServletResponse response){
+      BindingResult bindingResult, Model model, HttpServletResponse response)
+      throws BadRequestException{
+
     checkSessionAttribute(model);
+    validatePassword(passDto, bindingResult);
+    if(bindingResult.hasErrors()){
+      response.setStatus(HttpServletResponse.SC_CONFLICT);
+      return "reset";
+    }
     //TODO: add method arguments
     //TODO: reset service call
     return "redirect:/login";
+  }
+
+  private boolean validatePassword(PassDto passDto, BindingResult bindingResult) {
+    boolean result = this.passwordValidator.validate(passDto.getPassword());
+    if(!result){
+      String message = this.passwordValidator.getExceptionMessage();
+      bindingResult.addError(new FieldError("passDto", "password",
+          passDto.getPassword(),false, null, null, message));
+      bindingResult.addError(new FieldError("passDto", "password2",
+          "",false, null, null, null));
+    }
+    if(!passDto.getPassword().equals(passDto.getPassword2())){
+      ObjectError error = new ObjectError("duplicateError", INVALID_DUPLICATE);
+      bindingResult.addError(error);
+    }
+    return result;
   }
 
   private void checkSessionAttribute(Model model) throws BadRequestException{

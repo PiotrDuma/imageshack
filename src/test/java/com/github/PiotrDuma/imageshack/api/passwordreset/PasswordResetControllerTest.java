@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import com.github.PiotrDuma.imageshack.config.controller.ControllerTestConfig;
+import com.github.PiotrDuma.imageshack.config.extensions.ExtendedMockMvcResultMatchers;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,5 +114,39 @@ class PasswordResetControllerTest {
         .andReturn();
 
     assertTrue(result.getResponse().getContentAsString().contains(message));
+  }
+
+  @Test
+  void postResetEndpointShouldReturnWhenPasswordIsNotValid() throws Exception{
+    String password = "Pass%G G$#^%wd123";
+    String password2 = "Pass%G G$#^%wd123";
+
+    when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
+    when(this.passwordValidator.validate(any())).thenReturn(false);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
+            .flashAttr("email", EMAIL)
+            .param("password", password)
+            .param("password2", password2))
+        .andExpectAll(status().isConflict(),
+            view().name("reset"),
+            model().attributeHasFieldErrors("passDto", "password"));
+  }
+
+  @Test
+  void postResetEndpointShouldReturnWhenPasswordsNotMatch() throws Exception{
+    String password = "Pass%G G$#^%wd123";
+    String password2 = "Pass%G";
+
+    when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
+    when(this.passwordValidator.validate(any())).thenReturn(true);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
+            .flashAttr("email", EMAIL)
+            .param("password", password)
+            .param("password2", password2))
+        .andExpectAll(status().isConflict(),
+            view().name("reset"),
+            ExtendedMockMvcResultMatchers.hasGlobalError("passDto", "duplicateError"));
   }
 }

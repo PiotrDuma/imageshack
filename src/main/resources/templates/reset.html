@@ -7,6 +7,25 @@
   <link rel="stylesheet" href="../static/css/simple-page.css" th:href="@{/css/simple-page.css}">
 </head>
 <body>
-  <p>PASS RESET TEMPLATE</p>
+<div class="content">
+  <div class="content-page">
+    <div class="content-box">
+      <h1>Reset Password</h1>
+      <form th:action="@{/recover/reset}" th:object="${passDto}" th:method="POST">
+        <div th:if="${#fields.hasErrors('global')}" class="error-box">
+          <p th:each="err : ${#fields.errors('global')}" th:text="${err}">error</p>
+        </div>
+
+        <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}" > </p>
+        <p>Enter a new password</p>
+        <input type="password" placeholder="password" class="input-field" th:field="*{password}" /><br>
+
+        <p>Enter again</p>
+        <input type="password" placeholder="confirm password" class="input-field" th:field="*{password2}" /><br>
+        <input type="submit" class="submit-btn" value="Send request"/>
+      </form>
+    </div>
+  </div>
+</div>
 </body>
 </html>
