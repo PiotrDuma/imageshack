@@ -1,6 +1,7 @@
 package com.github.PiotrDuma.imageshack.api.passwordreset;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,30 +68,35 @@ class PasswordResetControllerTest {
   void requestConfirmEndpointShouldRedirectToResetTemplate() throws Exception{
       doNothing().when(this.service).authenticate(any(), any());
 
-      mockMvc.perform(MockMvcRequestBuilders.post("/recover/confirm")
-              .param("email", EMAIL)
-              .param("token", TOKEN))
-          .andExpectAll(status().is3xxRedirection(),
-              redirectedUrl("/recover/reset"),
-              flash().attributeExists("email"));
+    MvcResult postResponse = mockMvc.perform(MockMvcRequestBuilders.post("/recover/confirm")
+            .param("email", EMAIL)
+            .param("token", TOKEN))
+        .andExpectAll(status().is3xxRedirection(),
+            redirectedUrl("/recover/reset"))
+        .andReturn();
 
-      mockMvc.perform(MockMvcRequestBuilders.get("/recover/confirm")
+    MvcResult getResponse = mockMvc.perform(MockMvcRequestBuilders.get("/recover/confirm")
               .param("email", EMAIL)
               .param("token", TOKEN))
           .andExpectAll(status().is3xxRedirection(),
-              redirectedUrl("/recover/reset"),
-              flash().attributeExists("email"));
+              redirectedUrl("/recover/reset"))
+          .andReturn();
+
       verify(this.service, times(2)).authenticate(EMAIL, TOKEN);
+      assertEquals(EMAIL, postResponse.getRequest().getSession().getAttribute("email"));
+      assertEquals(EMAIL, getResponse.getRequest().getSession().getAttribute("email"));
   }
 
   @Test
   void getResetEndpointShouldReturnTemplateWithAttributes() throws Exception{
-    mockMvc.perform(MockMvcRequestBuilders.get("/recover/reset")
-            .flashAttr("email", EMAIL))
+    MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/recover/reset")
+            .sessionAttr("email", EMAIL))
         .andExpectAll(status().isOk(),
-            model().attributeExists("email"),
             model().attributeExists("passDto"),
-            view().name("reset"));
+            view().name("reset"))
+        .andReturn();
+
+    assertEquals(EMAIL, mvcResult.getRequest().getSession().getAttribute("email"));
   }
 
   @Test
@@ -125,7 +130,7 @@ class PasswordResetControllerTest {
     when(this.passwordValidator.validate(any())).thenReturn(false);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
-            .flashAttr("email", EMAIL)
+            .sessionAttr("email", EMAIL)
             .param("password", password)
             .param("password2", password2))
         .andExpectAll(status().isConflict(),
@@ -142,11 +147,28 @@ class PasswordResetControllerTest {
     when(this.passwordValidator.validate(any())).thenReturn(true);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
-            .flashAttr("email", EMAIL)
+            .sessionAttr("email", EMAIL)
             .param("password", password)
             .param("password2", password2))
         .andExpectAll(status().isConflict(),
             view().name("reset"),
             ExtendedMockMvcResultMatchers.hasGlobalError("passDto", "duplicateError"));
+  }
+
+  @Test
+  void postResetEndpointShouldRedirectToLogin() throws Exception{
+    String password = "Passwd123";
+    String password2 = "Passwd123";
+
+    when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
+    when(this.passwordValidator.validate(any())).thenReturn(true);
+    doNothing().when(this.service).reset(any(), any());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
+            .sessionAttr("email", EMAIL)
+            .param("password", password)
+            .param("password2", password2))
+        .andExpectAll(status().is3xxRedirection(),
+            redirectedUrl("/login"));
   }
 }

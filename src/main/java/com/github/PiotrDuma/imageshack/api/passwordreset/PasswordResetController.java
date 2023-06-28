@@ -3,6 +3,7 @@ package com.github.PiotrDuma.imageshack.api.passwordreset;
 import com.github.PiotrDuma.imageshack.exception.type.BadRequestException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/recover")
@@ -54,36 +54,43 @@ public class PasswordResetController {
 
   @RequestMapping("/confirm")
   public String confirm(@RequestParam("email") String email, @RequestParam("token") String token,
-      RedirectAttributes attributes) throws BadRequestException{
+      HttpSession session) throws BadRequestException{
     try{
       this.service.authenticate(email, token);
+      session.setAttribute("email", email);
     }catch(Exception ex){
       throw new BadRequestException(ex.getMessage());
     }
-    attributes.addFlashAttribute("email", email);
     return "redirect:/recover/reset";
   }
 
   @GetMapping("/reset")
-  public String getResetTemplate(Model model) throws BadRequestException{
-    checkSessionAttribute(model);
+  public String getResetTemplate(Model model, HttpSession session) throws BadRequestException{
+    checkSessionAttribute(session);
     model.addAttribute("passDto", new PassDto());
     return "reset";
   }
 
   @PostMapping("/reset")
   public String reset(@Valid @ModelAttribute("passDto") PassDto passDto,
-      BindingResult bindingResult, Model model, HttpServletResponse response)
-      throws BadRequestException{
+      BindingResult bindingResult, Model model, HttpServletResponse response, HttpSession session)
+      throws RuntimeException{
 
-    checkSessionAttribute(model);
+    checkSessionAttribute(session);
     validatePassword(passDto, bindingResult);
     if(bindingResult.hasErrors()){
       response.setStatus(HttpServletResponse.SC_CONFLICT);
       return "reset";
     }
-    //TODO: add method arguments
-    //TODO: reset service call
+
+    try{
+      String email = (String) session.getAttribute("email");
+      this.service.reset(email, passDto.getPassword());
+    }catch (ClassCastException ex){
+      throw new RuntimeException(EMAIL_ATTRIBUTE_MISSING);
+    }catch(PasswordResetException ex){
+      throw new RuntimeException(ex.getMessage());
+    }
     return "redirect:/login";
   }
 
@@ -103,8 +110,8 @@ public class PasswordResetController {
     return result;
   }
 
-  private void checkSessionAttribute(Model model) throws BadRequestException{
-    if(!model.containsAttribute("email")){
+  private void checkSessionAttribute(HttpSession session) throws BadRequestException{
+    if(session.getAttribute("email") == null){
       throw new BadRequestException(EMAIL_ATTRIBUTE_MISSING);
     }
   }
