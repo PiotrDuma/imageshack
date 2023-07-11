@@ -1,6 +1,7 @@
 package com.github.PiotrDuma.imageshack.api.passwordreset;
 
 import com.github.PiotrDuma.imageshack.exception.type.BadRequestException;
+import com.github.PiotrDuma.imageshack.tools.email.EmailService;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,14 +28,16 @@ public class PasswordResetController {
   private static final String EMAIL_ATTRIBUTE_MISSING = "Missing session attribute: email";
   private static final String INVALID_DUPLICATE = "Provided passwords don't match";
   private final PasswordResetService service;
+  private final EmailService emailService;
   private final Validator emailValidator;
   private final Validator passwordValidator;
 
   @Autowired
-  public PasswordResetController(PasswordResetService service,
+  public PasswordResetController(PasswordResetService service, EmailService emailService,
       @Qualifier("emailValidator") Validator emailValidator,
       @Qualifier("passwordValidator") Validator passwordValidator) {
     this.service = service;
+    this.emailService = emailService;
     this.emailValidator = emailValidator;
     this.passwordValidator = passwordValidator;
   }
