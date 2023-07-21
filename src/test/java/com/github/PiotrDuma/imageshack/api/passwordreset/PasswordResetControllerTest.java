@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.github.PiotrDuma.imageshack.config.controller.ControllerTestConfig;
 import com.github.PiotrDuma.imageshack.config.extensions.ExtendedMockMvcResultMatchers;
 import com.github.PiotrDuma.imageshack.exception.type.BadRequestException;
+import com.github.PiotrDuma.imageshack.tools.email.EmailSendingException;
+import com.github.PiotrDuma.imageshack.tools.email.EmailService;
+import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +39,8 @@ class PasswordResetControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @MockBean
+  private EmailService emailService;
   @MockBean
   private PasswordResetService service;
   @MockBean(name = "emailValidator")
@@ -63,6 +69,64 @@ class PasswordResetControllerTest {
             .param("email", EMAIL)
             .param("token", TOKEN))
         .andExpectAll(status().isBadRequest());
+  }
+
+  @Test
+  void postSendEmailEndpointShouldCallService() throws Exception{
+    String message = "message";
+    String subject = "subject";
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover")
+        .param("email", EMAIL))
+        .andExpectAll(
+            status().isOk(),
+            view().name("recover"));
+
+    verify(this.emailService, times(1)).sendMail(EMAIL, subject, message, false);
+  }
+
+  @Test
+  void postSendEmailEndpointShouldReturnErrorWhenEmailSendingExceptionIsThrown() throws Exception{
+    String message = "exception message";
+    doThrow(new EmailSendingException(message)).when(this.emailService)
+        .sendMail(any(),any(),any(),any());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover")
+            .param("email", EMAIL))
+        .andExpectAll(view().name("recover"),
+            status().is5xxServerError(),
+            model().hasErrors())
+        .andExpect(ExtendedMockMvcResultMatchers
+            .hasGlobalError("email", "failure", message))
+        .andExpect(model().errorCount(1));
+  }
+
+  @Test
+  void postSendEmailEndpointShouldReturnErrorWhenInvalidEmailAddressExceptionIsThrown() throws Exception{
+    String message = "exception message";
+    doThrow(new InvalidEmailAddressException(message)).when(this.emailService)
+        .sendMail(any(),any(),any(),any());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover")
+            .param("email", EMAIL))
+        .andExpectAll(view().name("recover"),
+            status().is5xxServerError(),
+            model().hasErrors())
+        .andExpect(ExtendedMockMvcResultMatchers
+            .hasGlobalError("email", "failure", message))
+        .andExpect(model().errorCount(1));
+  }
+
+  @Test
+  void postSendEmailEndpointShouldReturnBackWhenEmailIsInvalid() throws Exception{
+    String message = "exception message";
+    when(this.emailValidator.validate(any())).thenReturn(false);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/recover")
+            .param("email", EMAIL))
+        .andExpectAll(view().name("recover"),
+            status().isConflict(),
+            model().attributeHasFieldErrors("emailDto", "address"))
+        .andExpect(model().errorCount(1));
   }
 
   @Test
