@@ -25,7 +25,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/recover")
 public class PasswordResetController {
   private static final String EMAIL_ATTRIBUTE_MISSING = "Missing session attribute: email";
+  private static final String TOKEN_ATTRIBUTE_MISSING = "Missing session attribute: token";
+  private static final String SESSION_ARGUMENTS_FAILURE = "Invalid session arguments";
   private static final String INVALID_DUPLICATE = "Provided passwords don't match";
+
   private final PasswordResetService service;
   private final Validator emailValidator;
   private final Validator passwordValidator;
@@ -55,18 +58,16 @@ public class PasswordResetController {
   @RequestMapping("/confirm")
   public String confirm(@RequestParam("email") String email, @RequestParam("token") String token,
       HttpSession session) throws BadRequestException{
-    try{
-      this.service.authenticate(email, token);
-      session.setAttribute("email", email);
-    }catch(Exception ex){
-      throw new BadRequestException(ex.getMessage());
-    }
+
+    authenticateToken(email, token);
+    session.setAttribute("email", email);
+    session.setAttribute("token", token);
     return "redirect:/recover/reset";
   }
 
   @GetMapping("/reset")
   public String getResetTemplate(Model model, HttpSession session) throws BadRequestException{
-    checkSessionAttribute(session);
+    checkSessionAttributes(session);
     model.addAttribute("passDto", new PassDto());
     return "reset";
   }
@@ -76,7 +77,7 @@ public class PasswordResetController {
       BindingResult bindingResult, Model model, HttpServletResponse response, HttpSession session)
       throws RuntimeException{
 
-    checkSessionAttribute(session);
+    checkSessionAttributes(session);
     validatePassword(passDto, bindingResult);
     if(bindingResult.hasErrors()){
       response.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -85,13 +86,23 @@ public class PasswordResetController {
 
     try{
       String email = (String) session.getAttribute("email");
+      String token = (String) session.getAttribute("token");
+      authenticateToken(email, token);
       this.service.reset(email, passDto.getPassword());
     }catch (ClassCastException ex){
-      throw new RuntimeException(EMAIL_ATTRIBUTE_MISSING);
+      throw new RuntimeException(SESSION_ARGUMENTS_FAILURE);
     }catch(PasswordResetException ex){
       throw new RuntimeException(ex.getMessage());
     }
     return "redirect:/login";
+  }
+
+  private void authenticateToken(String email, String token) throws BadRequestException{
+    try{
+      this.service.authenticate(email, token);
+    }catch(Exception ex){
+      throw new BadRequestException(ex.getMessage());
+    }
   }
 
   private boolean validatePassword(PassDto passDto, BindingResult bindingResult) {
@@ -110,9 +121,12 @@ public class PasswordResetController {
     return result;
   }
 
-  private void checkSessionAttribute(HttpSession session) throws BadRequestException{
+  private void checkSessionAttributes(HttpSession session) throws BadRequestException{
     if(session.getAttribute("email") == null){
       throw new BadRequestException(EMAIL_ATTRIBUTE_MISSING);
+    }
+    if(session.getAttribute("token") == null){
+      throw new BadRequestException(TOKEN_ATTRIBUTE_MISSING);
     }
   }
 

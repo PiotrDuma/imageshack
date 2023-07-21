@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.github.PiotrDuma.imageshack.config.controller.ControllerTestConfig;
 import com.github.PiotrDuma.imageshack.config.extensions.ExtendedMockMvcResultMatchers;
+import com.github.PiotrDuma.imageshack.exception.type.BadRequestException;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,8 @@ class PasswordResetControllerTest {
   @Test
   void getResetEndpointShouldReturnTemplateWithAttributes() throws Exception{
     MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/recover/reset")
-            .sessionAttr("email", EMAIL))
+            .sessionAttr("email", EMAIL)
+            .sessionAttr("token", TOKEN))
         .andExpectAll(status().isOk(),
             model().attributeExists("passDto"),
             view().name("reset"))
@@ -128,9 +130,11 @@ class PasswordResetControllerTest {
 
     when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
     when(this.passwordValidator.validate(any())).thenReturn(false);
+    doNothing().when(this.service).authenticate(any(), any());
 
     mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
             .sessionAttr("email", EMAIL)
+            .sessionAttr("token", TOKEN)
             .param("password", password)
             .param("password2", password2))
         .andExpectAll(status().isConflict(),
@@ -145,9 +149,11 @@ class PasswordResetControllerTest {
 
     when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
     when(this.passwordValidator.validate(any())).thenReturn(true);
+    doNothing().when(this.service).authenticate(any(), any());
 
     mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
             .sessionAttr("email", EMAIL)
+            .sessionAttr("token", TOKEN)
             .param("password", password)
             .param("password2", password2))
         .andExpectAll(status().isConflict(),
@@ -162,13 +168,37 @@ class PasswordResetControllerTest {
 
     when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
     when(this.passwordValidator.validate(any())).thenReturn(true);
+    doNothing().when(this.service).authenticate(any(), any());
     doNothing().when(this.service).reset(any(), any());
 
     mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
             .sessionAttr("email", EMAIL)
+            .sessionAttr("token", TOKEN)
             .param("password", password)
             .param("password2", password2))
         .andExpectAll(status().is3xxRedirection(),
             redirectedUrl("/login"));
+  }
+
+  @Test
+  void postResetEndpointShouldThrowWhenTokenFailsAuthentication() throws Exception{
+    String password = "Passwd123";
+    String password2 = "Passwd123";
+    String exceptionMessage = "exception message 123";
+
+
+    when(this.passwordValidator.getExceptionMessage()).thenReturn("validator message");
+    when(this.passwordValidator.validate(any())).thenReturn(true);
+    doThrow(new BadRequestException(exceptionMessage)).when(this.service).authenticate(any(), any());
+
+    MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/recover/reset")
+                    .sessionAttr("email", EMAIL)
+                    .sessionAttr("token", TOKEN)
+                    .param("password", password)
+                    .param("password2", password2))
+            .andExpect(status().isBadRequest())
+            .andReturn();
+
+    assertTrue(result.getResponse().getContentAsString().contains(exceptionMessage));
   }
 }
