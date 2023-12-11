@@ -26,17 +26,17 @@ public class Password {
   @Pattern(regexp = REQUIRE_LOWER_CASE, message = LOWERCASE_EXCEPTION)
   @Pattern(regexp = REQUIRE_UPPER_CASE, message = UPPERCASE_EXCEPTION)
   @Pattern(regexp = REQUIRE_NO_BLANK_SIGNS, message = BLANK_SIGN_EXCEPTION)
-  private String value;
+  private String password;
 
-  public Password(String value) {
-    this.value = value;
+  public Password(String password) {
+    this.password = password;
   }
 
-  public String getValue() {
-    return value;
+  public String getPassword() {
+    return password;
   }
 
-  public void setValue(String value) {
-    this.value = value;
+  public void setPassword(String password) {
+    this.password = password;
   }
 }
