@@ -23,7 +23,7 @@ class UsernameTest {
 
   @Test
   void shouldPassWhenUsernameIsValid(){
-    Username username = new Username("ao123");
+    Username username = new Username("Ao123");
 
     Set<ConstraintViolation<Username>> validate = validator.validate(username);
 
@@ -63,7 +63,7 @@ class UsernameTest {
 
   @Test
   void shouldFailValidationWhenUsernameIsTooLong(){
-    String expectedMessage = "Username must have less than 32 characters";
+    String expectedMessage = "Username must contain less than 32 characters";
     Username username = new Username(new RandomString(33).nextString());
 
     Set<ConstraintViolation<Username>> validate = validator.validate(username);
