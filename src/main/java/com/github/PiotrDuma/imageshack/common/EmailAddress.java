@@ -8,10 +8,7 @@ import javax.validation.constraints.Size;
 public class EmailAddress {
   private static final int MIN_LENGTH = 3;
   private static final int  MAX_LENGTH = 64;
-//  private static final String PROHIBITED_SIGNS_PATTERN ="^(?![0-9._])(?!.*[0-9._]$)(?!.*\\d_)[a-zA-Z0-9_.-]+$";
-//  private static final String PROHIBITED_SIGNS_PATTERN ="^(?!.*([/?]|[/!]|[/%]|[/^]|[/$]|[/\']|[/\"]|[/)]|[/(]|))[\\w_.-]+$";
   private static final String PROHIBITED_SIGNS_PATTERN ="^(?!.*(<|>|[\\?]))[a-zA-Z0-9_.\\-@]+$";
-//  private static final String PROHIBITED_SIGNS_PATTERN ="^[a-zA-Z0-9_.-@]+$";
   private static final String EMAIL_EXCEPTION = "Set valid email address";
   private static final String PATTERN_EXCEPTION =  "Email address cannot contain special signs: !%^$\'?&*()\"";
   private static final String MIN_LENGTH_EXCEPTION = "Email must be longer that 3 signs";
