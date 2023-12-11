@@ -24,27 +24,28 @@ class PasswordTest {
 
   @Test
   void shouldPassWhenPasswordIsValid() {
-    String password = "Password1";
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Password password = new Password("Password1");
+
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
 
     assertTrue(validation.isEmpty());
   }
 
   @Test
   void shouldPassWhenPasswordContainsSpecialSigns() {
-    String password = "Po1!@#$%^&*()<>,.{}:";
+    Password password = new Password("Po1!@#$%^&*()<>,.{}:");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
 
     assertTrue(validation.isEmpty());
   }
 
   @Test
-  void returnFalseWhenPasswordHasNoDigit() {
+  void shouldFailValidationWhenPasswordHasNoDigit() {
     String expectedMessage = "Password must contain at least one digit";
-    String password = "Password";
+    Password password = new Password("Password");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -53,11 +54,11 @@ class PasswordTest {
   }
 
   @Test
-  void returnFalseWhenPasswordHasNoUpperCase() {
+  void shouldFailValidationWhenPasswordHasNoUpperCase() {
     String expectedMessage = "Password must contain at least one uppercase character";
-    String password = "password123";
+    Password password = new Password("password123");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -66,11 +67,11 @@ class PasswordTest {
   }
 
   @Test
-  void returnFalseWhenPasswordHasNoLowerCase() {
+  void shouldFailValidationWhenPasswordHasNoLowerCase() {
     String expectedMessage = "Password must contain at least one lowercase character";
-    String password = "PASSWORD123";
+    Password password = new Password("PASSWORD123");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -79,11 +80,11 @@ class PasswordTest {
   }
 
   @Test
-  void returnFalseWhenPasswordHasBlankSigns() {
+  void shouldFailValidationWhenPasswordHasBlankSigns() {
     String expectedMessage = "Password cannot contain blank characters";
-    String password = " ";
+    Password password = new Password(" ");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -94,9 +95,9 @@ class PasswordTest {
   @Test
   void shouldFailValidationWhenPasswordIsBlank() {
     String expectedMessage = "Password cannot be blank";
-    String password = "";
+    Password password = new Password("");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -107,9 +108,9 @@ class PasswordTest {
   @Test
   void shouldFailValidationWhenPasswordIsNull() {
     String expectedMessage = "Password cannot be blank";
-    String password = null;
+    Password password = new Password(null);
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -120,9 +121,9 @@ class PasswordTest {
   @Test
   void shouldFailValidationWhenPasswordIsTooLong() {
     String expectedMessage = "Password must contain max 32 characters";
-    String password = new RandomString(33).nextString();
+    Password password = new Password(new RandomString(33).nextString());
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
@@ -133,9 +134,9 @@ class PasswordTest {
   @Test
   void shouldFailValidationWhenPasswordIsTooShort() {
     String expectedMessage = "Password must contain at least 8 characters";
-    String password = "12345";
+    Password password = new Password("1234567");
 
-    Set<ConstraintViolation<String>> validation = validator.validate(password);
+    Set<ConstraintViolation<Password>> validation = validator.validate(password);
     Set<String> result = validation.stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toSet());
