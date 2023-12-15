@@ -1,8 +1,11 @@
 package com.github.PiotrDuma.imageshack.exception;
 
+import com.github.PiotrDuma.imageshack.ImageshackApplication;
 import com.github.PiotrDuma.imageshack.exception.type.BadRequestException;
 import java.time.ZonedDateTime;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
@@ -13,12 +16,14 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
   private static final String NOT_FOUND = "Page not found";
   private static final String ACCESS_DENIED = "Access denied";
 
   @ExceptionHandler(Exception.class)
   public String handle(Exception ex, Model model, HttpServletResponse response){
     ExceptionDTO exceptionInfo = getExceptionInfo(ex);
+    log.error("Exception happened: {}", ex.getMessage(), ex.getCause());
     model.addAttribute("exception", exceptionInfo);
     response.setStatus(exceptionInfo.getStatus().value());
     return "error";
