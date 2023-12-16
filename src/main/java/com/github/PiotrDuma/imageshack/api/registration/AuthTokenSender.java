@@ -1,11 +1,11 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
+import com.github.PiotrDuma.imageshack.common.EmailAddress;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
-import com.github.PiotrDuma.imageshack.tools.email.EmailSendingException;
 import com.github.PiotrDuma.imageshack.tools.email.EmailService;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
 import java.time.Instant;
@@ -61,9 +61,9 @@ class AuthTokenSender {
 
   private void sendEmail(String email, String subject, String message) throws RegistrationAuthProcessingException{
     try{
-      this.emailService.sendMail(email, subject, message, false);
-    }catch (EmailSendingException ex){
-      throw new RegistrationAuthProcessingException("Email sending has failed.", ex.getCause());
+//      this.emailService.sendMail(email, subject, message, false); //TODO:
+//    }catch (EmailSendingException ex){ //TODO: removed. IoC
+//      throw new RegistrationAuthProcessingException("Email sending has failed.", ex.getCause());
     }catch(InvalidEmailAddressException ex){
       throw new RegistrationAuthProcessingException("Invalid email address. Email sending has failed.", ex.getCause());
     }

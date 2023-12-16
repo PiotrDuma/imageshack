@@ -1,6 +1,7 @@
 package com.github.PiotrDuma.imageshack.tools.email;
 
 import java.util.Properties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -8,19 +9,22 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @Configuration
 class SystemEmailServiceConfig {
-  private static final String EMAIL_HOST = "smtp-mail.outlook.com";
-  private static final int EMAIL_PORT = 587;
-  private static final String EMAIL_USERNAME = "imageshack-system.message@outlook.com";
-  private static final String EMAIL_PASSWORD = "Imageshackpass123";
-
+  @Value("${spring.application.email.smtp_host}")
+  private String emailHost;
+  @Value("${spring.application.email.port}")
+  private int emailPort;
+  @Value("${spring.application.email.account_name}")
+  private String emailAccount;
+  @Value("${spring.application.email.password}")
+  private String emailPassword;
 
   @Bean
   public JavaMailSender mailSender() {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-    mailSender.setHost(EMAIL_HOST);
-    mailSender.setUsername(EMAIL_USERNAME);
-    mailSender.setPassword(EMAIL_PASSWORD);
-    mailSender.setPort(EMAIL_PORT);
+    mailSender.setHost(emailHost);
+    mailSender.setUsername(emailAccount);
+    mailSender.setPassword(emailPassword);
+    mailSender.setPort(emailPort);
 
     Properties properties = setProperties(mailSender.getJavaMailProperties());
     mailSender.setJavaMailProperties(properties);
@@ -39,6 +43,6 @@ class SystemEmailServiceConfig {
   }
 
   public String getFrom(){
-    return EMAIL_USERNAME;
+    return emailAccount;
   }
 }
