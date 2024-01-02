@@ -8,9 +8,8 @@ import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationA
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationException;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
+import com.github.PiotrDuma.imageshack.tools.token.api.TokenObject;
+import com.github.PiotrDuma.imageshack.tools.token.api.TokenAuthService;
 import com.github.PiotrDuma.imageshack.tools.validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,14 +19,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("registrationService")
 class RegistrationServiceImpl implements RegistrationService {
-  private final UserService userService;
-  private final TokenAuthFacade tokenFacade;
+  @Override
+  public void register(AppUserDTO appUserDTO) throws RegistrationException, RegisterIOException {
+    //TODO:
+  }
+
+  @Override
+  public void authenticate(String email, String tokenValue) throws RegistrationException {
+    //TODO:
+  }
+
+  @Override
+  public void sendAccountAuthenticationToken(String email) throws RegistrationException {
+    //TODO:
+  }
+  /*  private final UserService userService;
+  private final TokenAuthService tokenFacade;
   private final AuthTokenSender authTokenSender;
   private final Validator validator;
   private RegisterIOException exception;
 
   @Autowired
-  public RegistrationServiceImpl(UserService userService, TokenAuthFacade tokenFacade,
+  public RegistrationServiceImpl(UserService userService, TokenAuthService tokenFacade,
       AuthTokenSender authTokenSender,
       @Qualifier("emailValidator") Validator validator) {
     this.userService = userService;
@@ -107,9 +120,9 @@ class RegistrationServiceImpl implements RegistrationService {
     exception.addError(field, message);
   }
 
-  /**
+  *//**
    * AppUserDTO's fields are already checked by validators in controller.
-   */
+   *//*
   private void checkInputDTO(AppUserDTO dto){
     if(userService.existsByUsername(dto.getUsername())){
       addExceptionMessage(AppUserDTO.Field.USERNAME, "User with login '"+ dto.getUsername()
@@ -119,5 +132,5 @@ class RegistrationServiceImpl implements RegistrationService {
       addExceptionMessage(AppUserDTO.Field.EMAIL, "User with email '"+ dto.getEmail()
           + "' already exists");
     }
-  }
+  }*/
 }

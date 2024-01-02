@@ -1,11 +1,9 @@
 package com.github.PiotrDuma.imageshack.api.registration;
 
 import com.github.PiotrDuma.imageshack.api.registration.Exceptions.RegistrationAuthProcessingException;
-import com.github.PiotrDuma.imageshack.common.EmailAddress;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenAuthType;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenAuthDTO;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthDomain.TokenObject.TokenObject;
-import com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade;
+import com.github.PiotrDuma.imageshack.tools.token.api.TokenRequest;
+import com.github.PiotrDuma.imageshack.tools.token.api.TokenObject;
+import com.github.PiotrDuma.imageshack.tools.token.api.TokenAuthService;
 import com.github.PiotrDuma.imageshack.tools.email.EmailService;
 import com.github.PiotrDuma.imageshack.tools.validators.EmailValidator.InvalidEmailAddressException;
 import java.time.Instant;
@@ -18,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component("authTokenSender")
 class AuthTokenSender {
-  private static final String MESSAGE = "Hello!\n\nYou have created an account in %s website.\n"
+  /*private static final String MESSAGE = "Hello!\n\nYou have created an account in %s website.\n"
       + "Login: %s / %s\n\n"
       + "If you want to activate your profile please click in link below:\n\n"
       + "%s\n\n"
@@ -30,18 +28,18 @@ class AuthTokenSender {
   @Value("${services.systemURL}") private String systemUrl;
   @Value("${services.registrationAuth}") private String endpoint;
   private final EmailService emailService;
-  private final TokenAuthFacade tokenFacade;
+  private final TokenAuthService tokenFacade;
 
   @Autowired
-  public AuthTokenSender(EmailService emailService, TokenAuthFacade tokenFacade) {
+  public AuthTokenSender(EmailService emailService, TokenAuthService tokenFacade) {
     this.emailService = emailService;
     this.tokenFacade = tokenFacade;
   }
 
-  /**
+  *//**
    * Creates authentication token and sends confirmation link via application's email.
    *
-   * This method uses {@link com.github.PiotrDuma.imageshack.tools.TokenAuthService.TokenAuthFacade}
+   * This method uses {@link TokenAuthService}
    * to initialize confirmation token with associated email. The token is used to generate
    * authentication URL and custom registration email message to send it using
    * {@link com.github.PiotrDuma.imageshack.tools.email.EmailService}
@@ -49,7 +47,7 @@ class AuthTokenSender {
    * @param email an email address of registered user required to send message.
    * @param username the name used only in email message.
    * @throws RegistrationAuthProcessingException throws when token is not created or message sending failed.
-   */
+   *//*
   public void send(String email, String username) throws RegistrationAuthProcessingException {
     String subject = applicationName + ": account activation";
     TokenObject token = createToken(email);
@@ -72,7 +70,7 @@ class AuthTokenSender {
   private TokenObject createToken(String email) throws RegistrationAuthProcessingException {
     TokenObject token = null;
     try{
-      token = this.tokenFacade.create(new TokenAuthDTO(email, TokenAuthType.ACCOUNT_CONFIRMATION));
+      token = this.tokenFacade.create(new TokenRequest(email, TokenAuthType.ACCOUNT_CONFIRMATION));
     }catch(RuntimeException ex){
       throw new RegistrationAuthProcessingException("Token initialization has failed.", ex.getCause());
     }
@@ -110,5 +108,5 @@ class AuthTokenSender {
         .append("&token=")
         .append(tokenValue)
         .toString();
-  }
+  }*/
 }
