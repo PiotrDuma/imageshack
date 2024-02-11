@@ -50,7 +50,6 @@ class TokenAuthRepoTest {
   void shouldFindEqualTokenInDatabase(){
     TokenEntity tokenEntity = new TokenEntity(OWNER_ID, TOKEN_TYPE, TOKEN_CREATED, TOKEN_EXPIRES);
 
-
     repo.save(tokenEntity);
     Optional<TokenEntity> result = this.repo.findByPublicId(tokenEntity.getTokenId());
     assertTrue(result.isPresent());

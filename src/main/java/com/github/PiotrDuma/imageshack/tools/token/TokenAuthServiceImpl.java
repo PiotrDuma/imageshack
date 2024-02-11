@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
+import java.util.Optional;
 
 @Service
 class TokenAuthServiceImpl implements TokenAuthService {
-    private static final String NOT_FOUND = "Token not found";
+    private static final String NOT_FOUND = "Provided token not found";
 
     private final TokenRepository repository;
     private final Clock clock;
@@ -25,7 +26,21 @@ class TokenAuthServiceImpl implements TokenAuthService {
     }
 
     @Override
-    public TokenObject loadToken(TokenRequest token) throws TokenNotFoundException {
-        return null; //TODO:
+    public boolean isValid(TokenRequest token) throws TokenNotFoundException {
+        TokenEntity tokenEntity = loadToken(token);
+        validTokenParameters(tokenEntity, token);
+        return tokenEntity.isValid(this.clock.instant());
+    }
+
+    private TokenEntity loadToken(TokenRequest token){
+        return this.repository.findByPublicId(token.getTokenId())
+                .orElseThrow(() -> new TokenNotFoundException(NOT_FOUND));
+    }
+
+    private void validTokenParameters(TokenEntity tokenEntity,TokenRequest tokenRequest){
+        if(!tokenEntity.getTokenValue().equals(tokenRequest.getValue()) ||
+                !tokenEntity.getTokenType().equals(tokenRequest.getTokenType())){
+            throw new TokenNotFoundException(NOT_FOUND);
+        }
     }
 }
