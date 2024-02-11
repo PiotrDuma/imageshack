@@ -11,15 +11,15 @@ public class TokenProvider {
         this.tokenActiveTimeMinutes = tokenBuilder.tokenActiveTimeMinutes;
     }
 
-    protected Long getOwnerId() {
+    public Long getOwnerId() {
         return ownerId;
     }
 
-    protected TokenType getTokenType() {
+    public TokenType getTokenType() {
         return tokenType;
     }
 
-    protected int getTokenActiveTimeMinutes() {
+    public int getTokenActiveTimeMinutes() {
         return tokenActiveTimeMinutes;
     }
 

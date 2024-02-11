@@ -1,15 +1,14 @@
 package com.github.PiotrDuma.imageshack.tools.token;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import com.github.PiotrDuma.imageshack.tools.token.api.TokenObject;
 import com.github.PiotrDuma.imageshack.tools.token.api.TokenType;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "token")
@@ -74,7 +73,6 @@ class TokenEntity implements Serializable, TokenObject {
     return this.ownerId;
   }
 
-  @Override
   public Boolean isValid(Instant currentTime) {
     return !currentTime.isAfter(this.expiresAt);
   }

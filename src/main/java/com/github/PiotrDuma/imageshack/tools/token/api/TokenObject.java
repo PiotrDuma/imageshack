@@ -8,6 +8,5 @@ public interface TokenObject {
   UUID getTokenId();
   UUID getTokenValue();
   TokenType getTokenType();
-  Boolean isValid(Instant currentTime);
   Instant expiresAt();
 }

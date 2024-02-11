@@ -1,9 +1,6 @@
 package com.github.PiotrDuma.imageshack.tools.token;
 
-import com.github.PiotrDuma.imageshack.tools.token.api.TokenAuthService;
-import com.github.PiotrDuma.imageshack.tools.token.api.TokenNotFoundException;
-import com.github.PiotrDuma.imageshack.tools.token.api.TokenRequest;
-import com.github.PiotrDuma.imageshack.tools.token.api.TokenType;
+import com.github.PiotrDuma.imageshack.tools.token.api.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,12 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TokenAuthServiceTest {
@@ -110,5 +108,29 @@ class TokenAuthServiceTest {
         when(repoResponse.isValid(any())).thenReturn(true);
 
         assertTrue(this.service.isValid(request));
+    }
+
+    @Test
+    void createShouldReturnSaveAndReturnTokenObjectWithProvidedValues(){
+        Long ownerId = 1L;
+        TokenType expectedTokenType = TokenType.AUTHENTICATION;
+        int expectedTokenTimeAlive = 120;
+        TokenProvider request = new TokenProvider.TokenBuilder(ownerId)
+                .setTokenType(expectedTokenType)
+                .setTokenActiveTimeMinutes(expectedTokenTimeAlive)
+                .build();
+        TokenEntity response = new TokenEntity(ownerId, expectedTokenType, NOW.toInstant(),
+                NOW.toInstant().plus(expectedTokenTimeAlive, ChronoUnit.MINUTES));
+
+        when(this.clock.instant()).thenReturn(NOW.toInstant());
+        when(this.repo.save(any())).thenReturn(response);
+
+        TokenObject result = this.service.create(request);
+
+        assertEquals(ownerId, result.getTokenOwnerId());
+        assertEquals(expectedTokenType, result.getTokenType());
+        assertEquals(NOW.toInstant().plus(expectedTokenTimeAlive, ChronoUnit.MINUTES), result.expiresAt());
+
+        verify(this.repo, times(1)).save(any());
     }
 }

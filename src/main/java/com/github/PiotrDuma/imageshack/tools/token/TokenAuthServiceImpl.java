@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
 
 @Service
 class TokenAuthServiceImpl implements TokenAuthService {
@@ -22,7 +22,11 @@ class TokenAuthServiceImpl implements TokenAuthService {
 
     @Override
     public TokenObject create(TokenProvider provider) {
-        return null; //TODO:
+        TokenEntity token = new TokenEntity(provider.getOwnerId(),
+                provider.getTokenType(),
+                clock.instant(),
+                clock.instant().plus(provider.getTokenActiveTimeMinutes(), ChronoUnit.MINUTES));
+        return this.repository.save(token);
     }
 
     @Override
